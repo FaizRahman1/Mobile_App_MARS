@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class StructureSecondaryForm extends FormBloc<String, String> {
   // DECK DRAINAGE -- STRUCTURE
   final cond_surfacebridge_blockage_bound = SelectFieldBloc(
     validators: [FieldBlocValidators.required],
-    items: ['NB', 'SB'],
+    items: ['BB', 'EB', 'NB', 'SB', 'WB'],
     initialValue: 'NB',
   );
   final cond_others_bound = SelectFieldBloc(
@@ -1891,1872 +1892,1889 @@ class StructureSecondaryForm extends FormBloc<String, String> {
   }
 }
 
-class SuperstructureSecondaryTab extends StatelessWidget {
+class SuperstructureSecondaryTab extends StatefulWidget {
   SuperstructureSecondaryTab({super.key});
-  StructureSecondaryForm? formBloc;
+
+  /// ✅ Persistent bloc instance (InspectionPage reads the same instance)
+  final StructureSecondaryForm formBloc = StructureSecondaryForm();
+
+  @override
+  State<SuperstructureSecondaryTab> createState() =>
+      _SuperstructureSecondaryTabState();
+}
+
+class _SuperstructureSecondaryTabState extends State<SuperstructureSecondaryTab>
+    with AutomaticKeepAliveClientMixin<SuperstructureSecondaryTab> {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void dispose() {
+    widget.formBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return SizedBox(
       height: 2000,
-      child: BlocProvider(
-        create: (context) => StructureSecondaryForm(),
+      child: BlocProvider<StructureSecondaryForm>.value(
+        value: widget.formBloc,
         child: Builder(
-          builder: (context) {
-            final formBloc = BlocProvider.of<StructureSecondaryForm>(context);
-
-            return Theme(
-              data: Theme.of(context).copyWith(
-                inputDecorationTheme: InputDecorationTheme(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-              child: Scaffold(
-                body: FormBlocListener<StructureSecondaryForm, String, String>(
-                  child: SingleChildScrollView(
-                    //physics: const ClampingScrollPhysics(),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          //  -------------------- <DECK Bridge> Structure, Services, Others -------------------- //
-                          //Surface Drainaige(blockage)
-                          const Text(
-                            'Surface Drainage',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Blockage'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_blockage_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Defects',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_surfacebridge_blockage_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_surfacebridge_blockage_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const SizedBox(height: 15.0),
-                        //Surface Drainaige(Ponding water)
-                          const Text(
-                            'Surface Drainage',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Ponding Water'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_ponding_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Defects',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_ponding_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_ponding_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          //Surface Drainaige(others)
-                          const Text(
-                            'Surface Drainage',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                             TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_surfacebridge_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Others',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text('Others'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_surfacebridge_Status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_others_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          //Impact damage
-                          const Text(
-                            'Parapet',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Impact Damage'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_impact_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_impact_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_impact_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          //corrosion
-                          // const Text(
-                          //   'Parapet',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          const Text('Corrosion'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_corrosion_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_corrosion_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.remarkscorrosion,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Parapet',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Crack'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_crack_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_crack_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.remarkscrack,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          //Spalling
-                          const Text(
-                            'Parapet',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Spalling'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_spall_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_spall_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.remarksspalling,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Parapet',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          //others
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_parapet_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Others:',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text('Others'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_parapet_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_parapet_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_parapet_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          //joint
-                          const Text(
-                            'Joint',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        
-                          const Text('Type'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.joint_description,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: '',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const Text('Status'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_joint_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_joint_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_joint_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Joint',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          //Fixity
-                          const Text('Fixity'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_fixity_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_fixity_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.remarksFixity,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Joint',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          //Water Leakage	
-                          const Text('Water Leakage'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_leakage_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_leakage_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.remarksWaterLeakage,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          //other(Joint)
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.joint_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Other:',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_joint_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_joint_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.remarksjointOthers,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Abutment Approach',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Pavement Depression'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pavement_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc:
-                                formBloc.cond_pavement_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_pavement_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Abutment Approach',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          //Others (Abutment Approach)
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_abutmentapproach_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Others',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentapproach_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentapproach_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.abutmentapproach_others_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Beam/Girder',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Corrosion'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_beam_corrosion_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_beam_corrosion_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_beam_corrosion_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Beam/Girder',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Crack'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_beam_crack_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_beam_crack_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_beam_crack_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Beam/Girder',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Spalling'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_beam_spalling_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_beam_spalling_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_beam_spalling_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text(
-                            'Beam/Girder',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Others'),
-                           TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_beam_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Others',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          // const Text('Others'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_beam_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_beam_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_beam_others_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Deck Soffit',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Crack'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_decksoffit_crack_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_decksoffit_crack_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_decksoffit_crack_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Deck Soffit',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Spalling'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_decksoffit_spall_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_decksoffit_spall_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_decksoffit_spall_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Deck Soffit',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          // const Text('Others'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_decksoffit_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Others',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_decksoffit_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_decksoffit_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_decksoffit_others_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Abutment/Wingwall',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Relative Movement'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentwingwall_movement_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentwingwall_movement_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_abutmentwingwall_movement_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text(
-                            'Abutment / Wingwall	',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Crack'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentwingwall_crack_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentwingwall_crack_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_abutmentwingwall_crack_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Pier',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          const Text('Spalling'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentwingwall_spall_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentwingwall_spall_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_abutmentwingwall_spall_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text(
-                            'Abutment / Wingwall',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_abutmentwingwall_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Others:',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          // const Text('Accumulation Of Debris'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentwingwall_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_abutmentwingwall_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_abutmentwingwall_others_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text(
-                            'Pier',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Relative Movement'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_movement_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_movement_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_pier_movement_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Pier',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Scouring'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_scour_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_scour_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_pier_scour_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Pier',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Accumulation of Debris'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_debris_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_debris_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_pier_debris_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Pier',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Crack'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_crack_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_crack_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_pier_crack_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Slope Protection / River',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          const Text('Spalling'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_spall_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_spall_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_pier_spall_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                            const Text('Others'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_pier_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              // labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text('Status'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_pier_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const Text('Remarks'),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_pier_others_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Slope Proctection / River Bank / Waterway',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Damage of Proctection Material'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_damage_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_damage_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_slopeprotection_damage_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Slope Proctection / River Bank / Waterway',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Scouring'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_scouring_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_scouring_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_slopeprotection_scouring_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Slope Protection / River',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          const Text('Erosion'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_erosion_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          // const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_erosion_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_slopeprotection_erosion_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Bearing',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          const Text('Vegetation'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_vege_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_vege_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_slopeprotection_vege_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          // const Text(
-                          //   'Bearing',
-                          //   style: TextStyle(
-                          //     fontSize: 20,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
-                          const Text('Siltation / Blockage of Waterway	'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_silt_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc:
-                                formBloc.cond_slopeprotection_silt_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_slopeprotection_silt_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-
-                          const Text('Others'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_slopeprotection_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              // labelText: '',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_slopeprotection_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_slopeprotection_others_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text(
-                            'Bearing',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Text('Abnormal Deformation	'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_deform_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_deform_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              // labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_bearing_deform_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text('Accumulation of Debris	'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_debris_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_debris_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                            
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_bearing_debris_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-
-                          const Text('Alignment / Seating	'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_seating_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_seating_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_bearing_seating_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text('Damage of Plinth'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_plinth_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text('Bound'),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_plinth_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_bearing_plinth_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          const Text('Others'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_bearing_others,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              // labelText: '',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          //sini 28/11/2025
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_others_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_bearing_others_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_bearing_others_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                            const SizedBox(height: 5.0),
-                            const Text('Other Element	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_otherselem1_description,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '1.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                            DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_otherselem1_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_otherselem1_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_otherselem1_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                            const SizedBox(height: 5.0),
-                            const Text('Other Element	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_otherselem2_description,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '2.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                            DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_otherselem2_status,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Status',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                            const SizedBox(height: 5.0),
-                            DropdownFieldBlocBuilder(
-                            selectFieldBloc: formBloc.cond_otherselem2_bound,
-                            itemBuilder: (context, dynamic value) =>
-                                FieldItem(child: Text(value)),
-                            decoration: const InputDecoration(
-                              labelText: 'Bound',
-                              prefixIcon: SizedBox(),
-                            ),
-                          ),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_otherselem2_remarks,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: 'Remarks',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                          
-                          const Text('Summary of inspection'),
-                          const Text('ROUTINE WORK DEFECTS	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_routinedefect1,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '1.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                            const Text('OTHER DEFECTS	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_otherdefect1,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '1.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                            const Text('ROUTINE WORK DEFECTS	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_routinedefect2,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '2.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),
-                             const Text('OTHER DEFECTS	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_otherdefect2,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '2.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),  
-                            const Text('ROUTINE WORK DEFECTS	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_routinedefect3,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '3.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),   
-                           const Text('OTHER DEFECTS	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_otherdefect3,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '3.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),          
-                            const Text('ROUTINE WORK DEFECTS	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_routinedefect4,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '4.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ), 
-                            const Text('OTHER DEFECTS	'),
-                            TextFieldBlocBuilder(
-                            textFieldBloc: formBloc.cond_otherdefect4,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              labelText: '4.',
-                              prefixIcon: Icon(Icons.note_alt_rounded),
-                            ),
-                          ),             
-
-                      
-
-
-                          //sini
-                        ],
+                  builder: (context) {
+                    final formBloc = BlocProvider.of<StructureSecondaryForm>(context);
+        
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        inputDecorationTheme: InputDecorationTheme(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                      child: Scaffold(
+                        body: FormBlocListener<StructureSecondaryForm, String, String>(
+                          child: SingleChildScrollView(
+                            //physics: const ClampingScrollPhysics(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  //  -------------------- <DECK Bridge> Structure, Services, Others -------------------- //
+                                  //Surface Drainaige(blockage)
+                                  const Text(
+                                    'Surface Drainage',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Blockage'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_blockage_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Defects',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+        
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_surfacebridge_blockage_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_surfacebridge_blockage_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const SizedBox(height: 15.0),
+                                //Surface Drainaige(Ponding water)
+                                  const Text(
+                                    'Surface Drainage',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Ponding Water'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_ponding_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Defects',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_ponding_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_ponding_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  //Surface Drainaige(others)
+                                  const Text(
+                                    'Surface Drainage',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                     TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_surfacebridge_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Others',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text('Others'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_surfacebridge_Status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_others_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  //Impact damage
+                                  const Text(
+                                    'Parapet',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Impact Damage'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_impact_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_impact_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_impact_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  //corrosion
+                                  // const Text(
+                                  //   'Parapet',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  const Text('Corrosion'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_corrosion_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_corrosion_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.remarkscorrosion,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Parapet',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Crack'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_crack_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_crack_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.remarkscrack,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  //Spalling
+                                  const Text(
+                                    'Parapet',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Spalling'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_spall_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_spall_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.remarksspalling,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Parapet',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  //others
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_parapet_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Others:',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text('Others'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_parapet_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_parapet_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_parapet_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  //joint
+                                  const Text(
+                                    'Joint',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                
+                                  const Text('Type'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.joint_description,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: '',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const Text('Status'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_joint_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_joint_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_joint_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Joint',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  //Fixity
+                                  const Text('Fixity'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_fixity_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_fixity_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.remarksFixity,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Joint',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  //Water Leakage	
+                                  const Text('Water Leakage'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_leakage_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_leakage_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.remarksWaterLeakage,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  //other(Joint)
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.joint_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Other:',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_joint_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_joint_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.remarksjointOthers,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Abutment Approach',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Pavement Depression'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pavement_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc:
+                                        formBloc.cond_pavement_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_pavement_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Abutment Approach',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  //Others (Abutment Approach)
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_abutmentapproach_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Others',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentapproach_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentapproach_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.abutmentapproach_others_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Beam/Girder',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Corrosion'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_beam_corrosion_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_beam_corrosion_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_beam_corrosion_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Beam/Girder',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Crack'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_beam_crack_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_beam_crack_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_beam_crack_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Beam/Girder',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Spalling'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_beam_spalling_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_beam_spalling_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_beam_spalling_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Beam/Girder',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Others'),
+                                   TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_beam_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Others',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  // const Text('Others'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_beam_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_beam_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_beam_others_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Deck Soffit',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Crack'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_decksoffit_crack_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_decksoffit_crack_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_decksoffit_crack_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Deck Soffit',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Spalling'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_decksoffit_spall_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_decksoffit_spall_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_decksoffit_spall_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Deck Soffit',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  // const Text('Others'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_decksoffit_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Others',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_decksoffit_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_decksoffit_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_decksoffit_others_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Abutment/Wingwall',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Relative Movement'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentwingwall_movement_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentwingwall_movement_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_abutmentwingwall_movement_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Abutment / Wingwall	',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Crack'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentwingwall_crack_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentwingwall_crack_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_abutmentwingwall_crack_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Pier',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  const Text('Spalling'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentwingwall_spall_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentwingwall_spall_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_abutmentwingwall_spall_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Abutment / Wingwall',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_abutmentwingwall_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Others:',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  // const Text('Accumulation Of Debris'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentwingwall_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_abutmentwingwall_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_abutmentwingwall_others_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Pier',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Relative Movement'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_movement_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_movement_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_pier_movement_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Pier',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Scouring'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_scour_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_scour_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_pier_scour_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Pier',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Accumulation of Debris'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_debris_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_debris_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_pier_debris_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Pier',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Crack'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_crack_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_crack_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_pier_crack_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Slope Protection / River',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  const Text('Spalling'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_spall_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_spall_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_pier_spall_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                    const Text('Others'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_pier_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text('Status'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_pier_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const Text('Remarks'),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_pier_others_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Slope Proctection / River Bank / Waterway',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Damage of Proctection Material'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_damage_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_damage_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_slopeprotection_damage_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Slope Proctection / River Bank / Waterway',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Scouring'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_scouring_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_scouring_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_slopeprotection_scouring_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Slope Protection / River',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  const Text('Erosion'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_erosion_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  // const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_erosion_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_slopeprotection_erosion_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Bearing',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  const Text('Vegetation'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_vege_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_vege_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_slopeprotection_vege_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  // const Text(
+                                  //   'Bearing',
+                                  //   style: TextStyle(
+                                  //     fontSize: 20,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  const Text('Siltation / Blockage of Waterway	'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_silt_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc:
+                                        formBloc.cond_slopeprotection_silt_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_slopeprotection_silt_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+        
+                                  const Text('Others'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_slopeprotection_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      // labelText: '',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_slopeprotection_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_slopeprotection_others_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text(
+                                    'Bearing',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text('Abnormal Deformation	'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_deform_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_deform_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      // labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_bearing_deform_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text('Accumulation of Debris	'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_debris_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_debris_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                    
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_bearing_debris_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+        
+                                  const Text('Alignment / Seating	'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_seating_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_seating_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_bearing_seating_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text('Damage of Plinth'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_plinth_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  const Text('Bound'),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_plinth_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_bearing_plinth_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  const Text('Others'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_bearing_others,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      // labelText: '',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  //sini 28/11/2025
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_others_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_bearing_others_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_bearing_others_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                    const SizedBox(height: 5.0),
+                                    const Text('Other Element	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_otherselem1_description,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '1.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                    DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_otherselem1_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_otherselem1_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_otherselem1_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                    const SizedBox(height: 5.0),
+                                    const Text('Other Element	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_otherselem2_description,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '2.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                    DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_otherselem2_status,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Status',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                    const SizedBox(height: 5.0),
+                                    DropdownFieldBlocBuilder(
+                                    selectFieldBloc: formBloc.cond_otherselem2_bound,
+                                    itemBuilder: (context, dynamic value) =>
+                                        FieldItem(child: Text(value)),
+                                    decoration: const InputDecoration(
+                                      labelText: 'Bound',
+                                      prefixIcon: SizedBox(),
+                                    ),
+                                  ),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_otherselem2_remarks,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Remarks',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                  
+                                  const Text('Summary of inspection'),
+                                  const Text('ROUTINE WORK DEFECTS	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_routinedefect1,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '1.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                    const Text('OTHER DEFECTS	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_otherdefect1,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '1.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                    const Text('ROUTINE WORK DEFECTS	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_routinedefect2,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '2.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),
+                                     const Text('OTHER DEFECTS	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_otherdefect2,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '2.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),  
+                                    const Text('ROUTINE WORK DEFECTS	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_routinedefect3,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '3.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),   
+                                   const Text('OTHER DEFECTS	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_otherdefect3,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '3.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),          
+                                    const Text('ROUTINE WORK DEFECTS	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_routinedefect4,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '4.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ), 
+                                    const Text('OTHER DEFECTS	'),
+                                    TextFieldBlocBuilder(
+                                    textFieldBloc: formBloc.cond_otherdefect4,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    decoration: const InputDecoration(
+                                      labelText: '4.',
+                                      prefixIcon: Icon(Icons.note_alt_rounded),
+                                    ),
+                                  ),             
+        
+                              
+        
+        
+                                  //sini
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             );
-          },
-        ),
-      ),
-    );
-  }
-
-  void formstructure() {
-    formBloc!.submit;
   }
 }
+
 
 class SubmitForm extends StatelessWidget {
   const SubmitForm({super.key, required this.formBloc});

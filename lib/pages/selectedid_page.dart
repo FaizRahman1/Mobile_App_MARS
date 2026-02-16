@@ -1,225 +1,222 @@
-import 'dart:convert';
-
-import 'package:bridgeinsp_new/generaloutline.dart';
-import 'package:bridgeinsp_new/models/bridgeidlist_model.dart';
-import 'package:bridgeinsp_new/pages/inspection_page.dart';
+// File: lib/pages/selectedid_page.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:bridgeinsp_new/models/bridgeidlist_model.dart';
+import 'package:bridgeinsp_new/pages/inspection_page.dart';
 
 class SelectedIdPage extends StatefulWidget {
   const SelectedIdPage({super.key, required this.title});
   final String title;
 
   @override
-  _SelectedIdPageState createState() => _SelectedIdPageState();
+  State<SelectedIdPage> createState() => _SelectedIdPageState();
 }
 
 class _SelectedIdPageState extends State<SelectedIdPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const NavBar(),
-      appBar: AppBar(
-        title: Text(
-          widget.title,
-          style: const TextStyle(color: Colors.deepPurple),
-        ),
-      ),
-      body: const Save(),
+      // ✅ Remove drawer if using bottom nav
+      // drawer: const NavBar(),
+      appBar: AppBar(title: Text(widget.title)),
+      body: const _SelectedListBody(),
     );
   }
 }
 
-class Save extends StatefulWidget {
-  const Save({super.key});
+class _SelectedListBody extends StatefulWidget {
+  const _SelectedListBody();
 
   @override
-  SaveView createState() => SaveView();
+  State<_SelectedListBody> createState() => _SelectedListBodyState();
 }
 
-class SaveView extends State<Save> {
-  SharedPref sharedPref = SharedPref();
-  List<Rows> savelist = [];
+class _SelectedListBodyState extends State<_SelectedListBody> {
+  // ✅ MUST MATCH bridgeidlist_page.dart
+  static const String kIdsKey = 'selected_bridge_ids';
+  static const String kRowsJsonKey = 'selected_bridge_rows_json';
+
+  List<Rows> savelist = <Rows>[];
+  bool loading = true;
 
   @override
   void initState() {
-    loadSharedPrefs();
     super.initState();
+    _load();
   }
 
-  Future<void> loadSharedPrefs() async {
+  Future<void> _load() async {
+    setState(() => loading = true);
+
     try {
-      List<Rows> user = Rows.decode(await sharedPref.read("list"));
-      setState(() {
-        savelist = user;
-      });
-      // Optional: Only show "Loaded!" if list not empty
-      if (savelist.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Loaded!"),
-            duration: Duration(milliseconds: 500),
-          ),
-        );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
+
+      // 1) Try full rows JSON first
+      final jsonStr = prefs.getString(kRowsJsonKey);
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        final rows = Rows.decode(jsonStr);
+        setState(() {
+          savelist = rows;
+          loading = false;
+        });
+        return;
       }
+
+      // 2) Fallback to IDs list (if JSON missing)
+      final ids = prefs.getStringList(kIdsKey) ?? <String>[];
+      if (ids.isNotEmpty) {
+        final rows = ids.map((id) {
+          final r = Rows();
+          r.id = id;
+          r.dateofinsp = null;
+          return r;
+        }).toList();
+
+        setState(() {
+          savelist = rows;
+          loading = false;
+        });
+        return;
+      }
+
+      setState(() {
+        savelist = <Rows>[];
+        loading = false;
+      });
     } catch (e) {
+      setState(() {
+        savelist = <Rows>[];
+        loading = false;
+      });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("You have not selected any Bridge ID yet!",
-              style: TextStyle(fontSize: 16.0)),
-          duration: const Duration(seconds: 5),
-          action: SnackBarAction(
-            label: 'Close',
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
-        ),
+        SnackBar(content: Text('Load failed: $e')),
       );
     }
   }
 
-  Future<void> _removeItem(int index) async {
-    if (index >= savelist.length || index < 0) return;
+  Future<void> _persist() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(kRowsJsonKey, Rows.encode(savelist));
 
-    final itemToRemove = savelist[index];
+    // keep ids list in sync
+    final ids = savelist
+        .map((e) => (e.id ?? '').trim())
+        .where((id) => id.isNotEmpty)
+        .toSet()
+        .toList();
+    await prefs.setStringList(kIdsKey, ids);
 
-    // Remove from UI first
-    setState(() {
-      savelist.removeAt(index);
-    });
+    await prefs.reload();
+  }
 
-    // Save to SharedPreferences
+  Future<void> _removeAt(int index) async {
+    if (index < 0 || index >= savelist.length) return;
+
+    final removed = savelist[index];
+    setState(() => savelist.removeAt(index));
+
     try {
-      String encodedData = Rows.encode(savelist);
-      await sharedPref.save("list", encodedData);
-
+      await _persist();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bridge ID removed'),
-          duration: Duration(milliseconds: 700),
-        ),
+        const SnackBar(content: Text('Bridge ID removed'), duration: Duration(milliseconds: 700)),
       );
     } catch (e) {
-      // Revert UI if save fails
-      setState(() {
-        savelist.insert(index, itemToRemove);
-      });
+      setState(() => savelist.insert(index, removed));
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to delete. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Delete failed: $e'), backgroundColor: Colors.red),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return savelist.isEmpty
-        ? Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.list, size: 60, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No selected Bridge IDs',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Go back to the Bridge ID list and select some to inspect.',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    )
-        : _builduserlist(context, savelist);
-  }
+    if (loading) return const Center(child: CircularProgressIndicator());
 
-  ListView _builduserlist(BuildContext context, List<Rows> selectedIdModel) {
-    return ListView.builder(
-      itemCount: selectedIdModel.length,
-      itemBuilder: (context, index) {
-        final item = selectedIdModel[index];
-        // 👇 Use a unique key based on ID to help Flutter track widgets
-        return Dismissible(
-          key: ObjectKey(item.id!), // ← Use ObjectKey for dynamic data
-          direction: DismissDirection.endToStart,
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            child: const Icon(Icons.delete, color: Colors.white),
-          ),
-          onDismissed: (direction) async {
-            await _removeItem(index);
-          },
-          confirmDismiss: (direction) async {
-            return await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Delete Bridge ID?'),
-                content: Text('Are you sure you want to remove "${item.id}"?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                  ),
-                ],
+    if (savelist.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.list, size: 60, color: Colors.grey),
+              SizedBox(height: 16),
+              Text('No selected Bridge IDs', style: TextStyle(fontSize: 18, color: Colors.grey)),
+              SizedBox(height: 8),
+              Text(
+                'Go back to the Bridge ID list and select some to inspect.',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+                textAlign: TextAlign.center,
               ),
-            ) ?? false;
-          },
-          child: Card(
-            child: ListTile(
-              title: Text('${item.id}'),
-              subtitle: Text('${item.dateofinsp}'),
-              leading: const Icon(Icons.search_rounded),
-              trailing: const Text("Tap to Inspect"),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InspectionPage(
-                      row: item.id,
-                      date: item.dateofinsp,
-                    ),
-                  ),
-                );
-              },
-            ),
+            ],
           ),
-        );
-      },
-    );
-  }
-}
-
-class SharedPref {
-  Future read(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getString(key) != null) {
-      return json.decode(prefs.getString(key)!);
+        ),
+      );
     }
-  }
 
-  Future<void> save(String key, value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, json.encode(value));
-  }
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.builder(
+        itemCount: savelist.length,
+        itemBuilder: (context, index) {
+          final item = savelist[index];
+          final id = (item.id ?? '').trim();
 
-  Future<void> remove(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
+          return Dismissible(
+            key: ValueKey(id.isNotEmpty ? id : 'idx_$index'),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            confirmDismiss: (_) async {
+              return await showDialog<bool>(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('Delete Bridge ID?'),
+                  content: Text('Remove "${id.isEmpty ? '(unknown)' : id}"?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              ) ??
+                  false;
+            },
+            onDismissed: (_) => _removeAt(index),
+            child: Card(
+              child: ListTile(
+                title: Text(id.isEmpty ? '(No ID)' : id),
+                subtitle: Text(item.dateofinsp?.toString() ?? 'No date'),
+                leading: const Icon(Icons.search_rounded),
+                trailing: const Text('Tap to Inspect'),
+                onTap: () {
+                  if (id.isEmpty) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => InspectionPage(row: item.id, date: item.dateofinsp),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

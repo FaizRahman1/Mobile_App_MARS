@@ -58,7 +58,7 @@ dependencies:
   open_file: ^3.3.2
 
   
-  image_picker: ^1.2.2
+  image_picker: ^1.2.0
   image_painter: ^0.7.1
   gallery_saver_plus: ^3.2.9
   
@@ -73,7 +73,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  flutter_launcher_icons: ^0.13.1
   very_good_analysis: ^9.0.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -129,3 +129,10 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package 
   
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#0D1B2A"
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
+  min_sdk_android: 21

@@ -1,22 +1,23 @@
 // File: lib/pages/bridgeidlist_page.dart
 
-import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:bridgeinsp_new/models/bridgeidlist_model.dart';
 import 'package:bridgeinsp_new/pages/selectedid_page.dart';
-import 'package:flutter/cupertino.dart';
-// ignore: depend_on_referenced_packages
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_form_bloc/flutter_form_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../bloc/bridgeidlist_bloc.dart';
-import 'dart:async';
 
 class BridgeidlistPage extends StatefulWidget {
   final String id;
 
-  const BridgeidlistPage({Key? key, required this.id}) : super(key: key);
+  const BridgeidlistPage({super.key, required this.id});
 
   @override
   State<BridgeidlistPage> createState() => _BridgeidlistPageState();
@@ -24,370 +25,460 @@ class BridgeidlistPage extends StatefulWidget {
 
 class _BridgeidlistPageState extends State<BridgeidlistPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final BridgeidlistBloc _newsBloc = BridgeidlistBloc();
-  // Remove datarow and disrow from state, manage them within the UI logic or bloc if needed later
-  // For now, they are derived from the bloc state
-
-  Timer? _debounce;
-
-  String btnSelect = 'Select';
+  final BridgeidlistBloc _bloc = BridgeidlistBloc();
 
   @override
   void initState() {
-    // --- REVERTED: Dispatch old event ---
-    _newsBloc.add(GetBridgeidList(id: widget.id));
     super.initState();
+    _bloc.add(GetBridgeidList(id: widget.id));
+  }
+
+  @override
+  void dispose() {
+    _bloc.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+
       appBar: AppBar(
-        title: const Text('List of Bridge Id'),
-      ),
-      drawer: const NavBar(),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          Expanded(
-            child: _buildListlist(context),
+        title: const Text('Search Bridge ID'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Refresh',
+            icon: const Icon(Icons.refresh),
+            onPressed: () => _bloc.add(GetBridgeidList(id: widget.id)),
           ),
+          const SizedBox(width: 4),
         ],
       ),
-    );
-  }
-
-  // --- NEW: Extracted content widget ---
-  Widget _buildListlist(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(8.0),
-      child: BlocProvider.value(
-        value: _newsBloc,
+      body: BlocProvider.value(
+        value: _bloc,
         child: BlocListener<BridgeidlistBloc, BridgeidlistState>(
           listener: (context, state) {
             if (state is BridgeidlistError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message!),
-                ),
+                SnackBar(content: Text(state.message ?? 'Error')),
               );
             }
           },
           child: BlocBuilder<BridgeidlistBloc, BridgeidlistState>(
-            // Removed buildWhen for simplicity in revert
             builder: (context, state) {
               if (state is BridgeidlistInitial || state is BridgeidlistLoading) {
-                return _buildLoading();
-              } else if (state is BridgeidlistLoaded) {
-                // --- REVERTED: Access data using old state structure ---
-                final allRows = state.bridgeidlistModel.rows ?? [];
-                return _BridgeListContent(
-                  allRows,
-                  widget.id,
-                  _scaffoldKey,
-                );
-              } else if (state is BridgeidlistError) {
-                return Center(child: Text('Error: ${state.message}'));
-              } else {
-                return Container();
+                return const Center(child: CircularProgressIndicator());
               }
+
+              if (state is BridgeidlistLoaded) {
+                final allRows = state.bridgeidlistModel.rows ?? <Rows>[];
+                return _BridgeListContent(
+                  originalData: allRows,
+                  pageId: widget.id,
+                  scaffoldKey: _scaffoldKey,
+                );
+              }
+
+              if (state is BridgeidlistError) {
+                return Center(child: Text('Error: ${state.message ?? '-'}'));
+              }
+
+              return const SizedBox.shrink();
             },
           ),
         ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _newsBloc.close(); // Close the bloc when the widget is disposed
-    _debounce?.cancel();
-    super.dispose();
-  }
 }
 
-// --- NEW: Stateful widget to manage the list and its filtering ---
 class _BridgeListContent extends StatefulWidget {
   final List<Rows> originalData;
-  final String pageId; // Pass the id down
+  final String pageId;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
-  const _BridgeListContent(this.originalData, this.pageId, this.scaffoldKey);
+  const _BridgeListContent({
+    required this.originalData,
+    required this.pageId,
+    required this.scaffoldKey,
+  });
 
   @override
   State<_BridgeListContent> createState() => _BridgeListContentState();
 }
 
 class _BridgeListContentState extends State<_BridgeListContent> {
-  late List<Rows> _displayedRows; // Manage the filtered list here
+  final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
+
+  late List<Rows> _displayedRows;
 
   @override
   void initState() {
     super.initState();
-    _displayedRows = List.from(widget.originalData); // Initialize with original data
+    _displayedRows = List<Rows>.from(widget.originalData);
   }
 
   @override
   void didUpdateWidget(covariant _BridgeListContent oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the original data changes (e.g., refresh), update the displayed list
     if (oldWidget.originalData != widget.originalData) {
-      _displayedRows = List.from(widget.originalData);
+      _displayedRows = List<Rows>.from(widget.originalData);
+      _applyFilter(_searchController.text);
     }
-  }
-
-  void _updateModel(String value) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-
-    if (value.isEmpty) {
-      setState(() {
-        _displayedRows = List.from(widget.originalData);
-      });
-      return;
-    }
-
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      final filtered = widget.originalData
-          .where((element) =>
-              element.id!.toLowerCase().contains(value.toLowerCase()))
-          .toList();
-      setState(() {
-        _displayedRows = filtered;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          onChanged: (value) {
-            _updateModel(value);
-          },
-          decoration: InputDecoration(
-            filled: true,
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none),
-            hintText: "... search bridge id",
-            hintStyle: const TextStyle(fontStyle: FontStyle.italic),
-            prefixIcon: const Icon(Icons.search),
-            prefixIconColor: Colors.blue,
-          ),
-        ),
-        const SizedBox(height: 10),
-        // ➕ Total count indicator
-        Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Showing ',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              TextSpan(
-                text: '${_displayedRows.length}',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              TextSpan(
-                text: ' of ',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              TextSpan(
-                text: '${widget.originalData.length}',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              TextSpan(
-                text: ' bridge IDs',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 15),
-        Expanded(
-          child: ListView.builder(
-            itemCount: _displayedRows.length,
-            itemBuilder: (context, index) {
-              // --- NEW: Return the extracted list item widget ---
-              return _BridgeIdListItem(
-                row: _displayedRows[index],
-                pageId: widget.pageId,
-                scaffoldKey: widget.scaffoldKey,
-                // Removed updateBtnSelect as it's not needed here
-              );
-              // --- END OF NEW WIDGET ---
-            },
-          ),
-        ),
-      ],
-    );
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _searchController.dispose();
     super.dispose();
   }
-}
 
-// --- NEW: Extracted list item widget ---
-class _BridgeIdListItem extends StatelessWidget {
-  final Rows row;
-  final String pageId;
-  final GlobalKey<ScaffoldState> scaffoldKey;
-  // Removed updateBtnSelect parameter
+  void _applyFilter(String value) {
+    final q = value.trim();
+    if (q.isEmpty) {
+      setState(() => _displayedRows = List<Rows>.from(widget.originalData));
+      return;
+    }
+    final filtered = widget.originalData
+        .where((e) => (e.id ?? '').toLowerCase().contains(q.toLowerCase()))
+        .toList();
+    setState(() => _displayedRows = filtered);
+  }
 
-  const _BridgeIdListItem({
-    Key? key,
-    required this.row,
-    required this.pageId,
-    required this.scaffoldKey,
-    // removed updateBtnSelect
-  }) : super(key: key);
+  void _onSearchChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      _applyFilter(value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        title: Text(row.id ?? '',), // Text content derived from 'row' prop
-        subtitle: Text(row.dateofinsp?.toString() ?? ''), // Text content derived from 'row' prop
-        leading: const Icon(Icons.edit_road), // Const widget
-        trailing: const Text("Select this Bridge ID?"), // Const widget
-        onTap: () => _handleTap(context),
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: _onSearchChanged,
+                          decoration: const InputDecoration(
+                            hintText: 'Search bridge ID...',
+                            border: InputBorder.none,
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      if (_searchController.text.isNotEmpty)
+                        IconButton(
+                          tooltip: 'Clear',
+                          onPressed: () {
+                            _searchController.clear();
+                            _applyFilter('');
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.close),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    _CountChip(label: 'Showing', value: _displayedRows.length),
+                    const SizedBox(width: 8),
+                    _CountChip(label: 'Total', value: widget.originalData.length),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: _displayedRows.isEmpty
+                ? _EmptyState(
+              onClear: () {
+                _searchController.clear();
+                _applyFilter('');
+                setState(() {});
+              },
+            )
+                : ListView.separated(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              itemCount: _displayedRows.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                return _BridgeIdCard(
+                  row: _displayedRows[index],
+                  scaffoldKey: widget.scaffoldKey,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BridgeIdCard extends StatelessWidget {
+  final Rows row;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
+  const _BridgeIdCard({
+    required this.row,
+    required this.scaffoldKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final id = row.id ?? '-';
+    final dateText = row.dateofinsp == null ? 'No date' : row.dateofinsp.toString();
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () => _handleTap(context),
+      child: Ink(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade300),
+          color: Theme.of(context).colorScheme.surface,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                child: Icon(
+                  Icons.account_tree_outlined,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      id,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      dateText,
+                      style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                ),
+                child: Text(
+                  'Select',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  // --- NEW: Handle tap logic separately ---
   Future<void> _handleTap(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-              title: const Text("Select this Bridge ID?"),
-              actions: [
-                CupertinoDialogAction(
-                    onPressed: () => Navigator.of(context).pop(false), // Pop with false
-                    child: const Text("Cancel")),
-                CupertinoDialogAction(
-                    onPressed: () {
-                      Navigator.of(context).pop(true); // Pop with true
-                    },
-                    child: const Text("Confirm")),
-              ],
-            );
-          },
-        ) ?? false; // Default to false if dialog is dismissed
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (_) => CupertinoAlertDialog(
+        title: const Text('Select this Bridge ID?'),
+        content: Text(row.id ?? '-'),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    ) ??
+        false;
 
-    if (confirmed) {
-      await _saveToSharedPrefs(row, context);
-    }
-  }
+    if (!confirmed) return;
 
-  // --- NEW: Move SharedPrefs logic here ---
-  Future<void> _saveToSharedPrefs(Rows selectedRow, BuildContext context) async {
-    final SharedPref sharedPref = SharedPref(); // Create instance here
-    List<Rows>? userlist = [];
-
-    try {
-      String? listData = await sharedPref.read("list");
-      if (listData != null) {
-        List<Rows> user = Rows.decode(listData);
-        user.add(selectedRow);
-        String encodedData = Rows.encode(user);
-        await sharedPref.save("list", encodedData);
-      } else {
-        // List doesn't exist, create new one
-        userlist.add(selectedRow);
-        String encodedData = Rows.encode(userlist);
-        await sharedPref.save("list", encodedData);
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text("New List Will be Created"),
-                duration: Duration(milliseconds: 500)));
-      }
-    } catch (e) {
-      // Handle potential errors during decode/save more gracefully if needed
-      userlist.add(selectedRow);
-      String encodedData = Rows.encode(userlist);
-      await sharedPref.save("list", encodedData);
+    final ok = await SelectedBridgeStore.upsert(row);
+    if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Data Saved (fallback)"),
-              duration: Duration(milliseconds: 500)));
+        const SnackBar(content: Text('Failed to save selected bridge.')),
+      );
+      return;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Save!"),
-            duration: Duration(milliseconds: 500)));
+      const SnackBar(content: Text('Selected bridge saved'), duration: Duration(milliseconds: 700)),
+    );
 
-    // Show success dialog
-    await showDialog(
-        context: scaffoldKey.currentContext!,
-        builder: (context) => CupertinoAlertDialog(
-          title: const Text("Success"),
-          actions: [
-            CupertinoDialogAction(
-                onPressed: () {
-                  // Removed button state update call
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BridgeidlistPage(id: pageId), // Pass id again
-                    ),
-                  );
-                },
-                child: const Text(
-                    "Back To Search Bridge ID")),
-            CupertinoDialogAction(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                      const SelectedIdPage(
-                          title: 'List of Selected Inspection '),
-                    ),
-                  );
-                },
-                child: const Text(
-                    "Go to Selected Bridge ID Page")),
-          ],
-          content: const Text(
-              "Bridge ID have successfully selected"),
-        ));
+    await showCupertinoDialog<void>(
+      context: scaffoldKey.currentContext ?? context,
+      builder: (_) => CupertinoAlertDialog(
+        title: const Text('Success'),
+        content: const Text('Bridge ID successfully selected.'),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Continue searching'),
+          ),
+          CupertinoDialogAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SelectedIdPage(title: 'List of Selected Inspection'),
+                ),
+              );
+            },
+            child: const Text('Go to Selected IDs'),
+          ),
+        ],
+      ),
+    );
   }
 }
-// --- END OF NEW WIDGET ---
 
-class SharedPref {
-  Future read(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getString(key) != null) {
-      return json.decode(prefs.getString(key)!);
+class _CountChip extends StatelessWidget {
+  final String label;
+  final int value;
+
+  const _CountChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        '$label: $value',
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final VoidCallback onClear;
+
+  const _EmptyState({required this.onClear});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.search_off, size: 44, color: Colors.grey.shade500),
+            const SizedBox(height: 10),
+            const Text(
+              'No matching bridge IDs',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Try a different keyword or clear the search.',
+              style: TextStyle(color: Colors.grey.shade700),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 14),
+            OutlinedButton.icon(
+              onPressed: onClear,
+              icon: const Icon(Icons.close),
+              label: const Text('Clear search'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// ✅ Robust storage: Save BOTH ids (StringList) and rows JSON.
+/// This prevents "saved but not showing" issues.
+class SelectedBridgeStore {
+  static const String kIdsKey = 'selected_bridge_ids';
+  static const String kRowsJsonKey = 'selected_bridge_rows_json';
+
+  static Future<bool> upsert(Rows selectedRow) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // --- 1) Save IDs list (most reliable) ---
+      final id = selectedRow.id;
+      if (id != null && id.trim().isNotEmpty) {
+        final currentIds = (prefs.getStringList(kIdsKey) ?? <String>[]).toList();
+        currentIds.removeWhere((x) => x == id);
+        currentIds.add(id);
+        await prefs.setStringList(kIdsKey, currentIds);
+      }
+
+      // --- 2) Save full rows JSON (for date + other fields) ---
+      List<Rows> rows = [];
+      final jsonStr = prefs.getString(kRowsJsonKey);
+      if (jsonStr != null && jsonStr.isNotEmpty) {
+        try {
+          rows = Rows.decode(jsonStr);
+        } catch (_) {
+          rows = [];
+        }
+      }
+      rows.removeWhere((e) => e.id == selectedRow.id);
+      rows.add(selectedRow);
+
+      await prefs.setString(kRowsJsonKey, Rows.encode(rows));
+
+      // Force reload cache (helps on some devices/flows)
+      await prefs.reload();
+      return true;
+    } catch (_) {
+      return false;
     }
   }
-
-  Future<void> save(String key, value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, json.encode(value));
-  }
-
-  Future<void> remove(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
-  }
 }
-
-Widget _buildLoading() => const Center(child: CircularProgressIndicator());

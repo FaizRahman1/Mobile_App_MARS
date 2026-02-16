@@ -3,7 +3,7 @@ part of 'datasend_bloc.dart';
 abstract class DatasendEvent {}
 
 class SendData extends DatasendEvent {
-  final brpostmodel name;
+  final BrPostModel inspection;
 
-  SendData(this.name);
+  SendData(this.inspection);
 }
