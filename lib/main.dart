@@ -1,4 +1,4 @@
-import 'package:bridgeinsp_new/pages/login_page.dart';
+import 'package:bridgeinsp_new/bridge/brpages/login_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {

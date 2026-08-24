@@ -1,8 +1,8 @@
 //import 'package:bridgeinsp/pages/bridgeidlist_page.dart';
-import 'package:bridgeinsp_new/pages/bridgeidlist_page.dart';
-import 'package:bridgeinsp_new/pages/login_page.dart';
-import 'package:bridgeinsp_new/pages/recordedinspection_page.dart';
-import 'package:bridgeinsp_new/pages/selectedid_page.dart';
+import 'package:bridgeinsp_new/bridge/brpages/bridgeidlist_page.dart';
+import 'package:bridgeinsp_new/bridge/brpages/login_page.dart';
+import 'package:bridgeinsp_new/bridge/brpages/recordedinspection_page.dart';
+import 'package:bridgeinsp_new/bridge/brpages/selectedid_page.dart';
 import 'package:flutter/material.dart';
 
 class HeadBar extends StatefulWidget {
