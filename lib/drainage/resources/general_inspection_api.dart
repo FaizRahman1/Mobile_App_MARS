@@ -1,4 +1,5 @@
 import 'package:bridgeinsp_new/drainage/Drmodels/drpost_model.dart';
+import 'package:bridgeinsp_new/drainage/resources/drainage_asset_resolver.dart';
 import 'package:bridgeinsp_new/drainage/resources/mars_api_config.dart';
 import 'package:dio/dio.dart';
 
@@ -25,8 +26,11 @@ class DrainageSubmissionResult {
 }
 
 class GeneralInspectionApi {
-  GeneralInspectionApi({Dio? dio})
-      : _dio = dio ??
+  GeneralInspectionApi({
+    Dio? dio,
+    DrainageAssetResolver? assetResolver,
+  })  : _assetResolver = assetResolver ?? const DrainageAssetResolver(),
+        _dio = dio ??
             Dio(
               BaseOptions(
                 baseUrl: MarsApiConfig.baseUrl,
@@ -39,9 +43,31 @@ class GeneralInspectionApi {
             );
 
   final Dio _dio;
+  final DrainageAssetResolver _assetResolver;
 
   Future<DrainageSubmissionResult> submit(DRPostModel inspection) async {
-    final request = _buildRequest(inspection);
+    final drainageId = inspection.id.trim();
+    if (drainageId.isEmpty) {
+      throw const DrainageApiException('DrainageId is required.');
+    }
+
+    var assetInternalId = inspection.assetInternalId;
+    if (assetInternalId == null) {
+      try {
+        final asset = await _assetResolver.resolve(drainageId);
+        assetInternalId = asset.id;
+      } on DrainageAssetResolutionException catch (error) {
+        throw DrainageApiException(error.message);
+      }
+    }
+
+    if (assetInternalId == null) {
+      throw const DrainageApiException(
+        'The drainage inventory record does not contain AssetInternalId.',
+      );
+    }
+
+    final request = _buildRequest(inspection, assetInternalId);
 
     try {
       final response = await _dio.post<Map<String, dynamic>>(
@@ -78,7 +104,10 @@ class GeneralInspectionApi {
     }
   }
 
-  Map<String, dynamic> _buildRequest(DRPostModel inspection) {
+  Map<String, dynamic> _buildRequest(
+    DRPostModel inspection,
+    int assetInternalId,
+  ) {
     final drainageId = inspection.id.trim();
     if (drainageId.isEmpty) {
       throw const DrainageApiException('DrainageId is required.');
@@ -93,6 +122,7 @@ class GeneralInspectionApi {
 
     return <String, dynamic>{
       'drainageId': drainageId,
+      'assetInternalId': assetInternalId,
       'dateOfInspection': inspection.dateofinsp.toIso8601String(),
       'dateOfLastInspection': null,
       'inspectedBy': _limit(inspection.inspectedby.trim(), 25),
