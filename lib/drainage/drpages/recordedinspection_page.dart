@@ -2,12 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:bridgeinsp_new/drainage/drmodels/drpost_model.dart';
+import 'package:bridgeinsp_new/drainage/Drmodels/drpost_model.dart';
 import 'package:bridgeinsp_new/drainage/drpages/drainageidlist_page.dart';
 import 'package:bridgeinsp_new/drainage/drpages/inspection_detail_page.dart';
 // If your home page class name is different (e.g. HomePage), update it here.
 import 'package:bridgeinsp_new/drainage/drpages/home_page.dart';
 import 'package:bridgeinsp_new/drainage/drpages/editinspection.dart';
+import 'package:bridgeinsp_new/drainage/resources/general_inspection_api.dart';
 
 
 class RecordedInspection extends StatefulWidget {
@@ -19,6 +20,8 @@ class RecordedInspection extends StatefulWidget {
 
 class _RecordedInspectionState extends State<RecordedInspection> {
   final TextEditingController _searchCtrl = TextEditingController();
+  final GeneralInspectionApi _generalInspectionApi = GeneralInspectionApi();
+  final Set<String> _submittingIds = <String>{};
 
   bool _loading = true;
   List<DRPostModel> _all = <DRPostModel>[];
@@ -52,12 +55,9 @@ class _RecordedInspectionState extends State<RecordedInspection> {
     }
 
     // newest first (safe even if date null)
-    list.sort((a, b) {
-      final da = a.dateofinsp ?? DateTime.fromMillisecondsSinceEpoch(0);
-      final db = b.dateofinsp ?? DateTime.fromMillisecondsSinceEpoch(0);
-      return db.compareTo(da);
-    });
+    list.sort((a, b) => b.dateofinsp.compareTo(a.dateofinsp));
 
+    if (!mounted) return;
     setState(() {
       _all = list;
       _loading = false;
@@ -67,7 +67,7 @@ class _RecordedInspectionState extends State<RecordedInspection> {
   List<DRPostModel> get _filtered {
     final q = _searchCtrl.text.trim().toLowerCase();
     if (q.isEmpty) return _all;
-    return _all.where((x) => (x.id ?? '').toLowerCase().contains(q)).toList();
+    return _all.where((x) => x.id.toLowerCase().contains(q)).toList();
   }
 
   Future<void> _delete(DRPostModel item) async {
@@ -75,7 +75,7 @@ class _RecordedInspectionState extends State<RecordedInspection> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Delete saved inspection?'),
-        content: Text('This will remove saved inspection for:\n\n${item.id ?? "-"}'),
+        content: Text('This will remove saved inspection for:\n\n${item.id}'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
           FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
@@ -121,19 +121,79 @@ Future<void> _edit(DRPostModel item) async {
 
 
   Future<void> _submit(DRPostModel item) async {
-    // API submit not completed yet — keep a clear UX hook.
-    await showDialog<void>(
+    if (_submittingIds.contains(item.id)) return;
+
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Submit'),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Submit inspection?'),
         content: Text(
-          'Submit flow is not connected yet.\n\nSaved inspection:\n${item.id ?? "-"}',
+          'Submit the saved inspection for ${item.id}?\n\n'
+          'The API will resolve its internal Asset ID.',
         ),
         actions: [
-          FilledButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Submit'),
+          ),
         ],
       ),
     );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _submittingIds.add(item.id));
+
+    try {
+      final result = await _generalInspectionApi.submit(item);
+      if (!mounted) return;
+
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Submitted successfully'),
+          content: Text(
+            '${result.message}\n\n'
+            'Drainage ID: ${result.drainageId}\n'
+            'Asset ID: ${result.assetInternalId ?? 'Resolved by server'}',
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } on DrainageApiException catch (error) {
+      if (!mounted) return;
+
+      final title = error.statusCode == 409
+          ? 'Inspection already submitted'
+          : 'Submission failed';
+
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(title),
+          content: Text(error.message),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _submittingIds.remove(item.id));
+      }
+    }
   }
 
   void _goHome() {
@@ -228,6 +288,7 @@ Future<void> _edit(DRPostModel item) async {
                       final item = items[index];
                       return _InspectionCard(
                         item: item,
+                        isSubmitting: _submittingIds.contains(item.id),
                         onReview: () => _review(item),
                         onEdit: () => _edit(item),
                         onSubmit: () => _submit(item),
@@ -318,6 +379,7 @@ class _HeaderCard extends StatelessWidget {
 
 class _InspectionCard extends StatelessWidget {
   final DRPostModel item;
+  final bool isSubmitting;
   final VoidCallback onReview;
   final VoidCallback onEdit;
   final VoidCallback onSubmit;
@@ -325,6 +387,7 @@ class _InspectionCard extends StatelessWidget {
 
   const _InspectionCard({
     required this.item,
+    required this.isSubmitting,
     required this.onReview,
     required this.onEdit,
     required this.onSubmit,
@@ -338,7 +401,7 @@ class _InspectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final id = item.id ?? '-';
+    final id = item.id;
     final date = _fmtDate(item.dateofinsp);
 
     return Card(
@@ -415,9 +478,14 @@ class _InspectionCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: onSubmit,
-                    icon: const Icon(Icons.send_outlined, size: 18),
-                    label: const Text('Submit'),
+                    onPressed: isSubmitting ? null : onSubmit,
+                    icon: isSubmitting
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.send_outlined, size: 18),
+                    label: Text(isSubmitting ? 'Sending' : 'Submit'),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

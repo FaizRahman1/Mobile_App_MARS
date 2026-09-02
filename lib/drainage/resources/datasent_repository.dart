@@ -1,6 +1,6 @@
 // File: lib/resources/datasent_repository.dart
 
-import 'package:bridgeinsp_new/drainage/drmodels/drpost_model.dart';
+import 'package:bridgeinsp_new/drainage/Drmodels/drpost_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';

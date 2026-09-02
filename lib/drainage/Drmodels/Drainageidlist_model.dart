@@ -107,14 +107,24 @@ class DrainageidlistModel {
 /// -------------------------------
 class Rows {
   String? id;
+  int? assetInternalId;
   DateTime? dateoflastinsp;
   DateTime? dateofinsp;
   String? inspby;
 
-  Rows({this.id, this.dateoflastinsp, this.dateofinsp, this.inspby});
+  Rows({
+    this.id,
+    this.assetInternalId,
+    this.dateoflastinsp,
+    this.dateofinsp,
+    this.inspby,
+  });
 
   Rows.fromJson(Map<String, dynamic> json) {
     id = json['id'];
+    assetInternalId = int.tryParse(
+      (json['assetInternalId'] ?? json['assetinternalid'] ?? '').toString(),
+    );
 
     final lastInsp = json['dateoflastinsp'];
     dateoflastinsp =
@@ -129,6 +139,7 @@ class Rows {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'assetInternalId': assetInternalId,
       'dateoflastinsp': dateoflastinsp?.toIso8601String(),
       'dateofinsp': dateofinsp?.toIso8601String(),
       'inspby': inspby,
@@ -138,6 +149,7 @@ class Rows {
   /// Restore this so your old pages won't break
   static Map<String, dynamic> toMap(Rows item) => {
         'id': item.id,
+        'assetInternalId': item.assetInternalId,
         'dateoflastinsp': item.dateoflastinsp?.toIso8601String(),
         'dateofinsp': item.dateofinsp?.toIso8601String(),
         'inspby': item.inspby,

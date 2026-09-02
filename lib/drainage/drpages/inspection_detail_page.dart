@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:bridgeinsp_new/drainage/drmodels/drpost_model.dart';
+import 'package:bridgeinsp_new/drainage/Drmodels/drpost_model.dart';
 
 class InspectionDetailPage extends StatelessWidget {
   final DRPostModel inspection;

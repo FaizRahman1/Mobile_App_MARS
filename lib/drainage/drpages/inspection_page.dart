@@ -58,11 +58,13 @@ class InspectionPhoto {
 
 class InspectionPage extends StatefulWidget {
   final String? row;
+  final int? assetInternalId;
   final DateTime? date;
 
   const InspectionPage({
     super.key,
     required this.row,
+    this.assetInternalId,
     required this.date,
   });
 
@@ -366,6 +368,7 @@ class _InspectionPageState extends State<InspectionPage> {
     try {
       final drPostModelToSave = DRPostModel.fromFormValues(
         id: sendInfoDto.id!,
+        assetInternalId: widget.assetInternalId,
         dateofinsp: sendInfoDto.dateofinsp,
         inspectedby: sendInfoDto.inspectedby,
         maintainedby: sendInfoDto.maintainedby,

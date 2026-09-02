@@ -8,7 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // UPDATE THESE IMPORTS TO MATCH YOUR PROJECT PATHS
-import 'package:bridgeinsp_new/drainage/drmodels/drpost_model.dart';
+import 'package:bridgeinsp_new/drainage/Drmodels/drpost_model.dart';
 import 'package:bridgeinsp_new/drainage/drmodels/drainageidlist_model.dart';
 import 'package:bridgeinsp_new/drainage/drpages/drainageform_tab.dart';
 
@@ -366,6 +366,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
     final updated = DRPostModel.fromFormValues(
       id: widget.model.id ?? "",
+      assetInternalId: widget.model.assetInternalId,
       dateofinsp: widget.model.dateofinsp ?? DateTime.now(),
       inspectedby: widget.model.inspectedby ?? "MobileUser",
       maintainedby: widget.model.maintainedby ?? "PLUS",

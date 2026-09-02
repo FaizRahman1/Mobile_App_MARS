@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:bridgeinsp_new/drainage/drmodels/drpost_model.dart';
+import 'package:bridgeinsp_new/drainage/Drmodels/drpost_model.dart';
 import 'package:bridgeinsp_new/drainage/drpages/inspection_detail_page.dart';
 
 class ReviewInspectionPage extends StatefulWidget {

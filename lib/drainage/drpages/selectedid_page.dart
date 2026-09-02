@@ -209,7 +209,11 @@ class _SelectedListBodyState extends State<_SelectedListBody> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => InspectionPage(row: item.id, date: item.dateofinsp),
+                      builder: (_) => InspectionPage(
+                        row: item.id,
+                        assetInternalId: item.assetInternalId,
+                        date: item.dateofinsp,
+                      ),
                     ),
                   );
                 },

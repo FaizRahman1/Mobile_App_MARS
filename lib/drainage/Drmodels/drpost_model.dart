@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 
 class DRPostModel {
   final String id;
+  final int? assetInternalId;
 
   // ===== drainage  =====
   final String? weathercondition;
@@ -55,6 +56,7 @@ class DRPostModel {
 
   DRPostModel({
     required this.id,
+    this.assetInternalId,
 
     this.weathercondition,
     this.siltationdiameterinlet,
@@ -120,8 +122,12 @@ class DRPostModel {
 
     return DRPostModel(
       id: (json['id'] ?? '').toString(),
+      assetInternalId: int.tryParse(
+        (json['assetInternalId'] ?? '').toString(),
+      ),
 
-      weathercondition: _s(json['weather_condition']),
+      weathercondition:
+          _s(json['weather_condition'] ?? json['weater_condition']),
       siltationdiameterinlet: _s(json['siltation_diameter_inlet']),
       siltationdiameteroutlet: _s(json['siltation_diameter_outlet']),
       vegecoverinlet: _s(json['vege_cover_inlet']),
@@ -151,7 +157,8 @@ class DRPostModel {
       routinedefect2: _s(json['routinedefect2']),
       otherdefect2: _s(json['otherdefect2']),
       routinedefect3: _s(json['routinedefect3']),
-      otherdefect3: _s(json['routinedefect4']),
+      otherdefect3: _s(json['otherdefect3']),
+      routinedefect4: _s(json['routinedefect4']),
       otherdefect4: _s(json['otherdefect4']),
       routinedefect5: _s(json['routinedefect5']),
       otherdefect5: _s(json['otherdefect5']),
@@ -170,6 +177,7 @@ class DRPostModel {
   // This factory is used by your save logic (InspectionPage)
   factory DRPostModel.fromFormValues({
     required String id,
+    int? assetInternalId,
     DateTime? dateofinsp,
     String? inspectedby,
     String? maintainedby,
@@ -217,6 +225,7 @@ class DRPostModel {
   }) {
     return DRPostModel(
       id: id,
+      assetInternalId: assetInternalId,
       dateofinsp: dateofinsp ?? DateTime.now(),
       inspectedby: inspectedby ?? 'MobileUser',
       maintainedby: maintainedby ?? 'PLUS',
@@ -267,7 +276,8 @@ class DRPostModel {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'weater_condition': weathercondition,
+    'assetInternalId': assetInternalId,
+    'weather_condition': weathercondition,
     'siltation_diameter_inlet': siltationdiameterinlet,
     'siltation_diameter_outlet': siltationdiameteroutlet,
     'vege_cover_inlet': vegecoverinlet,

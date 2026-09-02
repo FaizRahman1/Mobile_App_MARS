@@ -5,6 +5,7 @@ import 'drpost_model.dart';
 
 class SendInfo {
   final String id;
+  final int? assetInternalId;
 
   // ===== Drainage fields =====
   final String? weathercondition;
@@ -58,6 +59,7 @@ class SendInfo {
 
   const SendInfo({
     required this.id,
+    this.assetInternalId,
 
     this.weathercondition,  
     this.siltationdiameterinlet,
@@ -110,6 +112,7 @@ class SendInfo {
   factory SendInfo.fromDRPostModel(DRPostModel m) {
     return SendInfo(
       id: m.id,
+      assetInternalId: m.assetInternalId,
 
       weathercondition: m.weathercondition,
       siltationdiameterinlet: m.siltationdiameterinlet,
@@ -163,6 +166,7 @@ class SendInfo {
   DRPostModel toDRPostModel() {
     return DRPostModel(
       id: id,
+      assetInternalId: assetInternalId,
 
       dateofinsp: dateofinsp ?? DateTime.now(),
       inspectedby: inspectedby ?? 'MobileUser',
