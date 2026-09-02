@@ -14,7 +14,7 @@ class ApiProviderDrainageinventory {
     try {
       String inv = url!.replaceAll(r'/', '%2F');
       String newurl =
-          'https://teman-api.plus.com.my/c&s/drainagegi/all?id=$inv';
+          'https://teman-api.plus.com.my/c&s/drainage/all?id=$inv';
       Response response = await _dio.get(newurl,
           options: Options(
             headers: {
