@@ -26,21 +26,20 @@ class DrainageSubmissionResult {
 }
 
 class GeneralInspectionApi {
-  GeneralInspectionApi({
-    Dio? dio,
-    DrainageAssetResolver? assetResolver,
-  })  : _assetResolver = assetResolver ?? const DrainageAssetResolver(),
-        _dio = dio ??
-            Dio(
-              BaseOptions(
-                baseUrl: MarsApiConfig.baseUrl,
-                connectTimeout: const Duration(seconds: 15),
-                receiveTimeout: const Duration(seconds: 30),
-                sendTimeout: const Duration(seconds: 30),
-                headers: const {'Content-Type': 'application/json'},
-                validateStatus: (status) => status != null && status < 500,
-              ),
-            );
+  GeneralInspectionApi({Dio? dio, DrainageAssetResolver? assetResolver})
+    : _assetResolver = assetResolver ?? const DrainageAssetResolver(),
+      _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              baseUrl: MarsApiConfig.baseUrl,
+              connectTimeout: const Duration(seconds: 15),
+              receiveTimeout: const Duration(seconds: 30),
+              sendTimeout: const Duration(seconds: 30),
+              headers: const {'Content-Type': 'application/json'},
+              validateStatus: (status) => status != null && status < 500,
+            ),
+          );
 
   final Dio _dio;
   final DrainageAssetResolver _assetResolver;
@@ -76,7 +75,8 @@ class GeneralInspectionApi {
       );
 
       final body = response.data ?? const <String, dynamic>{};
-      final message = body['message']?.toString() ??
+      final message =
+          body['message']?.toString() ??
           'The server returned status ${response.statusCode}.';
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -149,7 +149,10 @@ class GeneralInspectionApi {
         'incomingDrainExplanation': inspection.incdrainexplanationinlet,
       },
       'outlet': <String, dynamic>{
-        'siltationDiameter': _lookup('IC44', inspection.siltationdiameteroutlet),
+        'siltationDiameter': _lookup(
+          'IC44',
+          inspection.siltationdiameteroutlet,
+        ),
         'vegetationCover': _lookup('IC46', inspection.vegecoveroutlet),
         'headwallStatus': _lookup('IC69', inspection.headwallstatusoutlet),
         'headwallExplanation': inspection.headwallexplainationoutlet,
@@ -169,20 +172,39 @@ class GeneralInspectionApi {
         _summary(4, inspection.routinedefect4, inspection.otherdefect4),
         _summary(5, inspection.routinedefect5, inspection.otherdefect5),
       ],
-      'photos': const <Map<String, dynamic>>[],
+      'photos': _buildPhotos(inspection),
     };
+  }
+
+  static List<Map<String, dynamic>> _buildPhotos(DRPostModel inspection) {
+    final images = <String>[
+      ...?inspection.images,
+      ...?inspection.images2,
+      ...?inspection.images3,
+      ...?inspection.images4,
+    ];
+
+    return images.indexed
+        .map(
+          (entry) => <String, dynamic>{
+            'photoTitle': 'Photo ${entry.$1 + 1}',
+            'photoDescription': 'Mobile inspection photo',
+            'base64Image': entry.$2,
+            'fileExtension': '.jpg',
+          },
+        )
+        .toList();
   }
 
   static Map<String, dynamic> _summary(
     int sequenceNumber,
     String? defect,
     String? recommendation,
-  ) =>
-      <String, dynamic>{
-        'sequenceNumber': sequenceNumber,
-        'defect': _nullableLimited(defect, 50),
-        'recommendation': _nullableLimited(recommendation, 50),
-      };
+  ) => <String, dynamic>{
+    'sequenceNumber': sequenceNumber,
+    'defect': _nullableLimited(defect, 50),
+    'recommendation': _nullableLimited(recommendation, 50),
+  };
 
   static int? _lookup(String category, String? label) {
     if (label == null || label.trim().isEmpty) return null;
