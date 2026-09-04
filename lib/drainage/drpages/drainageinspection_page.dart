@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:bridgeinsp_new/drainage/Drmodels/Drainageidlist_model.dart';
 import 'package:bridgeinsp_new/drainage/Drmodels/Drainageinspection_model.dart';
 import 'package:bridgeinsp_new/drainage/Drpages/inspectstructure_page.dart';
@@ -16,10 +15,14 @@ import '../bloc/drainagepi_bloc.dart';
 class DrainagepiPage extends StatefulWidget {
   static final theKey = GlobalKey<_DrainagepiPage>();
   final Rows
-      dridmodel; // initialised parameter passing from prev page; bridgeidlist
+  dridmodel; // initialised parameter passing from prev page; bridgeidlist
 
-  DrainagepiPage({Key? key, required this.dridmodel, DateTime? date, String? row})
-      : super(key: theKey);
+  DrainagepiPage({
+    Key? key,
+    required this.dridmodel,
+    DateTime? date,
+    String? row,
+  }) : super(key: theKey);
 
   @override
   _DrainagepiPage createState() => _DrainagepiPage();
@@ -44,9 +47,7 @@ class _DrainagepiPage extends State<DrainagepiPage> {
       body: Column(
         children: [
           const SizedBox(height: 20),
-          Expanded(
-            child: _builddetaildetail(context),
-          ),
+          Expanded(child: _builddetaildetail(context)),
         ],
       ),
     );
@@ -60,11 +61,9 @@ class _DrainagepiPage extends State<DrainagepiPage> {
         child: BlocListener<DrainagepiBloc, DrainagepiState>(
           listener: (context, state) {
             if (state is DrainagepiError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message!),
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message!)));
             }
 
             if (state is DrainagepiLoaded) {}
@@ -77,9 +76,10 @@ class _DrainagepiPage extends State<DrainagepiPage> {
                 return _buildLoading();
               } else if (state is DrainagepiLoaded) {
                 return WidgetDetail(
-                    context: context,
-                    widget: widget,
-                    bridgepimodel: state.drainageinspectionModel);
+                  context: context,
+                  widget: widget,
+                  bridgepimodel: state.drainageinspectionModel,
+                );
                 //bridgeinvmodel: state.bridgeinventoryModel);
               } else if (state is DrainagepiError) {
                 return Container();
@@ -114,10 +114,7 @@ class WidgetDetail extends StatelessWidget {
     SharedPref sharedPref = SharedPref();
     List<Rows>? userlist = [];
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.dridmodel.id as String),
-      ),
-      drawer: const NavBar(),
+      appBar: AppBar(title: Text(widget.dridmodel.id as String)),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -142,13 +139,14 @@ class WidgetDetail extends StatelessWidget {
               ),
               Text(
                 'Date of Last Inspection : ${widget.dridmodel.dateofinsp}',
-                style:
-                    const TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
+
               //
               /*
               SizedBox(
@@ -175,7 +173,6 @@ class WidgetDetail extends StatelessWidget {
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ))),
               */
-
               const SizedBox(height: 30),
               const Divider(),
               const SizedBox(height: 10),
@@ -189,16 +186,16 @@ class WidgetDetail extends StatelessWidget {
                 //model: model,
               ),
               */
-
               MenuWidget(
                 icon: const Icon(Icons.settings),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Bridgeinventory(
-                                row: bridgepimodel.id,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          Bridgeinventory(row: bridgepimodel.id),
+                    ),
+                  );
                 },
                 title: 'General Data',
                 model: bridgepimodel,
@@ -208,11 +205,12 @@ class WidgetDetail extends StatelessWidget {
                 icon: const Icon(Icons.settings),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => InspectStructurePage(
-                                row: bridgepimodel.id,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          InspectStructurePage(row: bridgepimodel.id),
+                    ),
+                  );
                 },
                 title: 'New Inspection - Inspect Structure',
                 model: bridgepimodel,
@@ -222,11 +220,13 @@ class WidgetDetail extends StatelessWidget {
                 icon: const Icon(Icons.settings),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ReviewInspectionPage(
-                                 row: bridgepimodel.id ?? "Unknown ID",
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReviewInspectionPage(
+                        row: bridgepimodel.id ?? "Unknown ID",
+                      ),
+                    ),
+                  );
                 },
                 title: 'New Inspection - Review of Inspection',
                 model: bridgepimodel,
@@ -237,57 +237,66 @@ class WidgetDetail extends StatelessWidget {
                 icon: const Icon(Icons.settings),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TestingTab(
-                                row: bridgepimodel.id,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TestingTab(row: bridgepimodel.id),
+                    ),
+                  );
                 },
                 title: 'Testing Tab',
                 model: bridgepimodel,
               ),
+
               // ---
 
               // <function save data to local> SUBMIT
-
               SizedBox(
                 width: 100,
                 child: ElevatedButton(
-                    onPressed: () async {
-                      Rows usertemp = widget.dridmodel;
-                      try {
-                        List<Rows> user =
-                            Rows.decode(await sharedPref.read("list"));
-                        user.add(usertemp);
-                        String encodedData = Rows.encode(user);
-                        sharedPref.save("list", encodedData);
-                      } catch (Excepetion) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("New List will be created"),
-                                duration: Duration(milliseconds: 500)));
-                        userlist.add(usertemp);
-                        String encodedData = Rows.encode(userlist);
-                        sharedPref.save("list", encodedData);
-                      }
-
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("Saved!"),
-                          duration: Duration(milliseconds: 500)));
-                    },
-                    style: ElevatedButton.styleFrom(
-                        //     backgroundColor: const Color.fromARGB(
-                        //   50,
-                        //   100,
-                        //   200,
-                        //   164,
-                        // )
+                  onPressed: () async {
+                    Rows usertemp = widget.dridmodel;
+                    try {
+                      List<Rows> user = Rows.decode(
+                        await sharedPref.read("list"),
+                      );
+                      user.add(usertemp);
+                      String encodedData = Rows.encode(user);
+                      sharedPref.save("list", encodedData);
+                    } catch (Excepetion) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("New List will be created"),
+                          duration: Duration(milliseconds: 500),
                         ),
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    )),
+                      );
+                      userlist.add(usertemp);
+                      String encodedData = Rows.encode(userlist);
+                      sharedPref.save("list", encodedData);
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Saved!"),
+                        duration: Duration(milliseconds: 500),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    //     backgroundColor: const Color.fromARGB(
+                    //   50,
+                    //   100,
+                    //   200,
+                    //   164,
+                    // )
+                  ),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
 
               // </function save data to local>
@@ -364,8 +373,12 @@ class MenuWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100),
                 // color: Colors.grey.withOpacity(0.1),
               ),
-              child: const Icon(Icons.arrow_forward,
-                  size: 18.0, color: Colors.grey))
+              child: const Icon(
+                Icons.arrow_forward,
+                size: 18.0,
+                color: Colors.grey,
+              ),
+            )
           : null,
     );
   }

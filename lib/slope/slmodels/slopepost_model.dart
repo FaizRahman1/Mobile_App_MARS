@@ -36,6 +36,7 @@ class SLPostModel {
   final List<String>? images2;
   final List<String>? images3;
   final List<String>? images4;
+  final List<String>? imageCaptions;
 
   const SLPostModel({
     required this.id,
@@ -65,6 +66,7 @@ class SLPostModel {
     this.images2,
     this.images3,
     this.images4,
+    this.imageCaptions,
   });
 
   factory SLPostModel.fromJson(Map<String, dynamic> json) {
@@ -75,9 +77,7 @@ class SLPostModel {
       interfacelocation: _asString(
         json['Interface Location'] ?? json['interfacelocation'],
       ),
-      accessibility: _asString(
-        json['Accessibility'] ?? json['accessibility'],
-      ),
+      accessibility: _asString(json['Accessibility'] ?? json['accessibility']),
       accessibilitywhy: _asString(
         json['Accessibility Why'] ?? json['accessibilitywhy'],
       ),
@@ -128,22 +128,21 @@ class SLPostModel {
         json['Other Routine Work'] ?? json['otherroutinework'],
       ),
       statusrm: _asString(json['Status RM'] ?? json['statusrm']),
-      dateofinsp: _asDateTime(
-            json['Date of Inspection'] ?? json['dateofinsp'],
-          ) ??
+      dateofinsp:
+          _asDateTime(json['Date of Inspection'] ?? json['dateofinsp']) ??
           DateTime.now(),
-      inspectedby: _asString(
-            json['Inspected By'] ?? json['inspectedby'],
-          ) ??
+      inspectedby:
+          _asString(json['Inspected By'] ?? json['inspectedby']) ??
           'MobileUser',
-      maintainedby: _asString(
-            json['Maintained By'] ?? json['maintainedby'],
-          ) ??
-          'PLUS',
+      maintainedby:
+          _asString(json['Maintained By'] ?? json['maintainedby']) ?? 'PLUS',
       images: _asStringList(json['Images'] ?? json['images']),
       images2: _asStringList(json['Images2'] ?? json['images2']),
       images3: _asStringList(json['Images3'] ?? json['images3']),
       images4: _asStringList(json['Images4'] ?? json['images4']),
+      imageCaptions: _asStringList(
+        json['ImageCaptions'] ?? json['imageCaptions'],
+      ),
     );
   }
 
@@ -175,6 +174,7 @@ class SLPostModel {
     List<String>? images2,
     List<String>? images3,
     List<String>? images4,
+    List<String>? imageCaptions,
   }) {
     return SLPostModel(
       id: id,
@@ -192,8 +192,7 @@ class SLPostModel {
       concreterestorationform: concreterestorationform,
       concreterestorationformdesc: concreterestorationformdesc,
       precastconcretereplacementform: precastconcretereplacementform,
-      precastconcretereplacementformdesc:
-          precastconcretereplacementformdesc,
+      precastconcretereplacementformdesc: precastconcretereplacementformdesc,
       earthdrainresectioningform: earthdrainresectioningform,
       earthdrainresectioningformdesc: earthdrainresectioningformdesc,
       otherroutinework: otherroutinework,
@@ -205,6 +204,7 @@ class SLPostModel {
       images2: images2,
       images3: images3,
       images4: images4,
+      imageCaptions: imageCaptions,
     );
   }
 
@@ -224,8 +224,7 @@ class SLPostModel {
       'Gully Repair Form Description': gullyrepairformdesc,
       'Concrete Restoration Form': concreterestorationform,
       'Concrete Restoration Form Description': concreterestorationformdesc,
-      'Precast Concrete Replacement Form':
-          precastconcretereplacementform,
+      'Precast Concrete Replacement Form': precastconcretereplacementform,
       'Precast Concrete Replacement Form Description':
           precastconcretereplacementformdesc,
       'Earth Drain Resectioning Form': earthdrainresectioningform,
@@ -240,6 +239,7 @@ class SLPostModel {
       'Images2': images2,
       'Images3': images3,
       'Images4': images4,
+      'ImageCaptions': imageCaptions,
     };
   }
 
@@ -256,11 +256,7 @@ class SLPostModel {
 
     return decoded
         .whereType<Map>()
-        .map(
-          (item) => SLPostModel.fromJson(
-            Map<String, dynamic>.from(item),
-          ),
-        )
+        .map((item) => SLPostModel.fromJson(Map<String, dynamic>.from(item)))
         .toList();
   }
 

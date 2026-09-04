@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:bridgeinsp_new/slope/slmodels/slopepost_model.dart';
 import 'package:bridgeinsp_new/slope/slmodels/slopeidlist_model.dart';
 import 'package:bridgeinsp_new/slope/slmodels/sendmodel.dart';
@@ -31,30 +30,32 @@ class SharedPref {
   }
 }
 
-
 class InspectionPhoto {
   final XFile file;
   final double? latitude;
   final double? longitude;
   final double? accuracy;
   final DateTime capturedAt;
+  String caption;
 
-  const InspectionPhoto({
+  InspectionPhoto({
     required this.file,
     required this.latitude,
     required this.longitude,
     required this.accuracy,
     required this.capturedAt,
+    this.caption = '',
   });
 
   Map<String, dynamic> toJson() => {
-        'fileName': file.name,
-        'filePath': file.path,
-        'latitude': latitude,
-        'longitude': longitude,
-        'accuracy': accuracy,
-        'capturedAt': capturedAt.toIso8601String(),
-      };
+    'fileName': file.name,
+    'filePath': file.path,
+    'latitude': latitude,
+    'longitude': longitude,
+    'accuracy': accuracy,
+    'capturedAt': capturedAt.toIso8601String(),
+    'caption': caption,
+  };
 }
 
 class InspectionPage extends StatefulWidget {
@@ -383,16 +384,20 @@ class _InspectionPageState extends State<InspectionPage> {
         gullyrepairformdesc: sendInfoDto.gullyrepairformdesc,
         concreterestorationform: sendInfoDto.concreterestorationform,
         concreterestorationformdesc: sendInfoDto.concreterestorationformdesc,
-        precastconcretereplacementform: sendInfoDto.precastconcretereplacementform,
-        precastconcretereplacementformdesc: sendInfoDto.precastconcretereplacementformdesc,
+        precastconcretereplacementform:
+            sendInfoDto.precastconcretereplacementform,
+        precastconcretereplacementformdesc:
+            sendInfoDto.precastconcretereplacementformdesc,
         earthdrainresectioningform: sendInfoDto.earthdrainresectioningform,
-        earthdrainresectioningformdesc: sendInfoDto.earthdrainresectioningformdesc,
+        earthdrainresectioningformdesc:
+            sendInfoDto.earthdrainresectioningformdesc,
         otherroutinework: sendInfoDto.otherroutinework,
         statusrm: sendInfoDto.statusrm,
         images: sendInfoDto.images,
         images2: sendInfoDto.images2,
         images3: sendInfoDto.images3,
         images4: sendInfoDto.images4,
+        imageCaptions: _photos.map((photo) => photo.caption.trim()).toList(),
       );
 
       final sharedPref = SharedPref();
@@ -495,7 +500,6 @@ class _InspectionPageState extends State<InspectionPage> {
     final bodies = _stepBodies();
 
     return Scaffold(
-      drawer: const NavBar(),
       appBar: AppBar(
         title: Column(
           children: [
@@ -759,10 +763,7 @@ class _ImagePickerModern extends StatelessWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          Image.file(
-                            File(photo.file.path),
-                            fit: BoxFit.cover,
-                          ),
+                          Image.file(File(photo.file.path), fit: BoxFit.cover),
                           Positioned(
                             top: 8,
                             right: 8,
@@ -831,6 +832,18 @@ class _ImagePickerModern extends StatelessWidget {
                             label: 'Captured at',
                             value: _formatDateTime(photo.capturedAt),
                           ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            initialValue: photo.caption,
+                            maxLength: 50,
+                            decoration: const InputDecoration(
+                              labelText: 'Photo caption',
+                              hintText: 'Describe this picture',
+                              prefixIcon: Icon(Icons.notes_outlined),
+                              border: OutlineInputBorder(),
+                            ),
+                            onChanged: (value) => photo.caption = value,
+                          ),
                           if (!hasCoordinate) ...[
                             const SizedBox(height: 10),
                             Container(
@@ -895,4 +908,3 @@ class _PhotoInfoRow extends StatelessWidget {
     );
   }
 }
-

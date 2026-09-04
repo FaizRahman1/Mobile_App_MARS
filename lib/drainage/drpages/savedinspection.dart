@@ -1,4 +1,3 @@
-import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:bridgeinsp_new/bridge/brmodels/bridgeidlist_model.dart';
 import 'package:bridgeinsp_new/bridge/brpages/inspection_page.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +15,7 @@ class _SelectedIdPageState extends State<SelectedIdPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const NavBar(),
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      appBar: AppBar(title: Text(widget.title)),
       body: const Save(),
     );
   }
@@ -66,7 +62,8 @@ class SaveView extends State<Save> {
       }
 
       // 2) Fallback to IDs list
-      final ids = prefs.getStringList(SelectedBridgeStore.kIdsKey) ?? <String>[];
+      final ids =
+          prefs.getStringList(SelectedBridgeStore.kIdsKey) ?? <String>[];
       if (ids.isNotEmpty) {
         // Build minimal Rows objects (id only) so UI can show something
         final rows = ids.map((id) {
@@ -109,12 +106,17 @@ class SaveView extends State<Save> {
       final prefs = await SharedPreferences.getInstance();
 
       // Update JSON rows
-      await prefs.setString(SelectedBridgeStore.kRowsJsonKey, Rows.encode(savelist));
+      await prefs.setString(
+        SelectedBridgeStore.kRowsJsonKey,
+        Rows.encode(savelist),
+      );
 
       // Update IDs list
       final id = itemToRemove.id;
       if (id != null && id.trim().isNotEmpty) {
-        final ids = (prefs.getStringList(SelectedBridgeStore.kIdsKey) ?? <String>[]).toList();
+        final ids =
+            (prefs.getStringList(SelectedBridgeStore.kIdsKey) ?? <String>[])
+                .toList();
         ids.removeWhere((x) => x == id);
         await prefs.setStringList(SelectedBridgeStore.kIdsKey, ids);
       }
@@ -122,7 +124,10 @@ class SaveView extends State<Save> {
       await prefs.reload();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bridge ID removed'), duration: Duration(milliseconds: 700)),
+        const SnackBar(
+          content: Text('Bridge ID removed'),
+          duration: Duration(milliseconds: 700),
+        ),
       );
     } catch (_) {
       // revert if fail
@@ -143,32 +148,32 @@ class SaveView extends State<Save> {
 
     return savelist.isEmpty
         ? Center(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.list, size: 60, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No selected Bridge IDs',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-              textAlign: TextAlign.center,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.list, size: 60, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'No selected Bridge IDs',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Go back to the Bridge ID list and select some to inspect.',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 8),
-            Text(
-              'Go back to the Bridge ID list and select some to inspect.',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    )
+          )
         : RefreshIndicator(
-      onRefresh: loadSharedPrefs,
-      child: _builduserlist(context, savelist),
-    );
+            onRefresh: loadSharedPrefs,
+            child: _builduserlist(context, savelist),
+          );
   }
 
   ListView _builduserlist(BuildContext context, List<Rows> selectedIdModel) {
@@ -192,22 +197,25 @@ class SaveView extends State<Save> {
           },
           confirmDismiss: (direction) async {
             return await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Delete Bridge ID?'),
-                content: Text('Are you sure you want to remove "$id"?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete Bridge ID?'),
+                    content: Text('Are you sure you want to remove "$id"?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text(
+                          'Delete',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
                   ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                  ),
-                ],
-              ),
-            ) ??
+                ) ??
                 false;
           },
           child: Card(
@@ -221,10 +229,8 @@ class SaveView extends State<Save> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => InspectionPage(
-                      row: item.id,
-                      date: item.dateofinsp,
-                    ),
+                    builder: (context) =>
+                        InspectionPage(row: item.id, date: item.dateofinsp),
                   ),
                 );
               },

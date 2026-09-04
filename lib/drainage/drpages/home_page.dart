@@ -2,6 +2,7 @@
 
 import 'package:bridgeinsp_new/bridge/authentication/auth.dart';
 import 'package:bridgeinsp_new/generaloutline.dart';
+import 'package:bridgeinsp_new/shared/module_bottom_navigation.dart';
 import 'package:bridgeinsp_new/drainage/drpages/drainageidlist_page.dart';
 import 'package:bridgeinsp_new/drainage/drpages/recordedinspection_page.dart';
 import 'package:bridgeinsp_new/drainage/drpages/selectedid_page.dart';
@@ -79,9 +80,7 @@ class _DrHomePageState extends State<DrHomePage> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const DrainageidlistPage(id: ''),
-      ),
+      MaterialPageRoute(builder: (context) => const DrainageidlistPage(id: '')),
     );
   }
 
@@ -89,9 +88,8 @@ class _DrHomePageState extends State<DrHomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const SelectedDRIdPage(
-          title: 'List of Selected Drainage IDs',
-        ),
+        builder: (context) =>
+            const SelectedDRIdPage(title: 'List of Selected Drainage IDs'),
       ),
     );
   }
@@ -111,9 +109,7 @@ class _DrHomePageState extends State<DrHomePage> {
   void _openModuleSelection() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (_) => const ModuleSelectionPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const ModuleSelectionPage()),
     );
   }
 
@@ -163,31 +159,10 @@ class _DrHomePageState extends State<DrHomePage> {
           const SizedBox(width: 4),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: ModuleBottomNavigation(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onNavTap,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search_rounded),
-            label: 'Search',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.list_alt_outlined),
-            selectedIcon: Icon(Icons.list_alt_rounded),
-            label: 'Inspected',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_customize_outlined),
-            selectedIcon: Icon(Icons.dashboard_customize),
-            label: 'Modules',
-          ),
-        ],
+        showModules: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -195,17 +170,13 @@ class _DrHomePageState extends State<DrHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _HeaderCard(
-                token: userToken,
-                onSearch: _openSearchDrainageId,
-              ),
+              _HeaderCard(token: userToken, onSearch: _openSearchDrainageId),
               const SizedBox(height: 16),
               Text(
                 'Quick Actions',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 10),
               GridView(
@@ -254,10 +225,9 @@ class _DrHomePageState extends State<DrHomePage> {
               const SizedBox(height: 14),
               Text(
                 'Tip: You can use the bottom navigation to jump quickly between Home, Search, Inspected list, and Modules.',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Colors.grey.shade700),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
               ),
             ],
           ),
@@ -271,10 +241,7 @@ class _HeaderCard extends StatelessWidget {
   final String? token;
   final VoidCallback onSearch;
 
-  const _HeaderCard({
-    required this.token,
-    required this.onSearch,
-  });
+  const _HeaderCard({required this.token, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -313,20 +280,18 @@ class _HeaderCard extends StatelessWidget {
                   children: [
                     Text(
                       'Welcome',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w900),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       token == null || token!.isEmpty
                           ? 'Session: -'
                           : 'Session: ${_maskToken(token!)}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey.shade700),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey.shade700,
+                      ),
                     ),
                   ],
                 ),
@@ -367,8 +332,9 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor =
-    isDestructive ? Colors.red.shade200 : Colors.grey.shade200;
+    final borderColor = isDestructive
+        ? Colors.red.shade200
+        : Colors.grey.shade200;
 
     final iconBg = isDestructive
         ? Colors.red.withOpacity(0.12)
@@ -401,20 +367,18 @@ class _ActionTile extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
-                    ?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 4),
               Text(
                 subtitle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Colors.grey.shade700),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
               ),
             ],
           ),
@@ -426,69 +390,55 @@ class _ActionTile extends StatelessWidget {
 
 Future<bool> _showLogoutConfirmationDialog(BuildContext context) async {
   return await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Confirm Logout'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Log Out'),
-          ),
-        ],
-      );
-    },
-  ) ??
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Logout'),
+            content: const Text('Are you sure you want to log out?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Log Out'),
+              ),
+            ],
+          );
+        },
+      ) ??
       false;
 }
 
 class NetworkErrorDialog extends StatelessWidget {
-  const NetworkErrorDialog({
-    super.key,
-    this.onPressed,
-  });
+  const NetworkErrorDialog({super.key, this.onPressed});
 
   final Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 200,
-            child: Image.asset('images/PLUS.png'),
-          ),
+          SizedBox(width: 200, child: Image.asset('images/PLUS.png')),
           const SizedBox(height: 32),
           const Text(
             "Whoops!",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           const Text(
             "No internet connection found.",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -498,10 +448,7 @@ class NetworkErrorDialog extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: onPressed,
-            child: const Text("OK"),
-          ),
+          FilledButton(onPressed: onPressed, child: const Text("OK")),
           FilledButton(
             child: const Text(" Cancel"),
             onPressed: () {

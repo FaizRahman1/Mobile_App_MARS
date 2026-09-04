@@ -188,7 +188,10 @@ class GeneralInspectionApi {
         .map(
           (entry) => <String, dynamic>{
             'photoTitle': 'Photo ${entry.$1 + 1}',
-            'photoDescription': 'Mobile inspection photo',
+            'photoDescription':
+                entry.$1 < (inspection.imageCaptions?.length ?? 0)
+                ? inspection.imageCaptions![entry.$1]
+                : '',
             'base64Image': entry.$2,
             'fileExtension': '.jpg',
           },

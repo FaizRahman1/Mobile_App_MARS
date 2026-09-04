@@ -1,5 +1,4 @@
 import 'package:bridgeinsp_new/slope/bloc/datasend_bloc.dart';
-import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:bridgeinsp_new/slope/slpages/substructure_tab.dart';
 import 'package:bridgeinsp_new/slope/slpages/superstructuresecondary_tab.dart';
 import 'package:bridgeinsp_new/slope/resources/datasent_repository.dart';
@@ -7,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 
 class InspectStructurePage extends StatefulWidget {
-  static final theKey = GlobalKey<_InspectStructurePageState>();  
+  static final theKey = GlobalKey<_InspectStructurePageState>();
   final String? row;
   final DateTime? date;
 
@@ -25,11 +24,11 @@ class _InspectStructurePageState extends State<InspectStructurePage> {
   @override
   void initState() {
     super.initState();
-      structureSecondaryForm = StructureSecondaryForm();
+    structureSecondaryForm = StructureSecondaryForm();
 
-  structureSecond = SuperstructureSecondaryTab(
-    formBloc: structureSecondaryForm,
-  );
+    structureSecond = SuperstructureSecondaryTab(
+      formBloc: structureSecondaryForm,
+    );
   }
 
   int _currentStep = 0;
@@ -43,22 +42,21 @@ class _InspectStructurePageState extends State<InspectStructurePage> {
   }
 
   List<Step> _steps() => [
-        Step(
-          title: const Text('SLOPE INSPECTION PAGE',
-              textAlign: TextAlign.center),
-          //content: const SuperstructureSecondaryTab(),
-          content: structureSecond,
-          state: _stepState(0),
-          isActive: _currentStep == 0,
-        ),
-      
-        // Step(
-        //   title: const Text('PHOTO/SKETCH', textAlign: TextAlign.center),
-        //   content: PhotoSketchTab(),
-        //   state: _stepState(3),
-        //   isActive: _currentStep == 3,
-        // )
-      ];
+    Step(
+      title: const Text('SLOPE INSPECTION PAGE', textAlign: TextAlign.center),
+      //content: const SuperstructureSecondaryTab(),
+      content: structureSecond,
+      state: _stepState(0),
+      isActive: _currentStep == 0,
+    ),
+
+    // Step(
+    //   title: const Text('PHOTO/SKETCH', textAlign: TextAlign.center),
+    //   content: PhotoSketchTab(),
+    //   state: _stepState(3),
+    //   isActive: _currentStep == 3,
+    // )
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -70,18 +68,16 @@ class _InspectStructurePageState extends State<InspectStructurePage> {
         title: Text(
           'slope ID : ${widget.row}',
           style: const TextStyle(
-              fontSize: 20.0,
-              color: Colors.black,
-              fontStyle: FontStyle.italic,
-              fontWeight: FontWeight.w500),
+            fontSize: 20.0,
+            color: Colors.black,
+            fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w500,
+          ),
           textAlign: TextAlign.center,
         ),
         centerTitle: true,
         // backgroundColor: const Color.fromARGB(255, 175, 198, 206),
       ),
-      drawer: const NavBarInspection(
-          //Text(widget.bridmodel.id as String),
-          ),
       body: Row(
         children: [
           Expanded(
@@ -89,39 +85,39 @@ class _InspectStructurePageState extends State<InspectStructurePage> {
               type: StepperType.horizontal,
               controlsBuilder:
                   (BuildContext context, ControlsDetails controls) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      ElevatedButton(
-                        //onPressed: controls.onStepContinue,
-                        onPressed: () {
-                          Navigator.push(
-                              controls.onStepContinue as BuildContext,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    BlocProvider<DatasendBloc>.value(
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          ElevatedButton(
+                            //onPressed: controls.onStepContinue,
+                            onPressed: () {
+                              Navigator.push(
+                                controls.onStepContinue as BuildContext,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      BlocProvider<DatasendBloc>.value(
                                         value: PostBloc,
-                                        child: InspectStructurePage(
-                                          row: '',
-                                        )),
-                              ));
-                        },
-                        child: const Text('SAVE RECORD'),
-                      ),
-                      if (_currentStep != 0)
-                        TextButton(
-                          onPressed: controls.onStepCancel,
-                          child: const Text(
-                            'BACK',
-                            style: TextStyle(color: Colors.grey),
+                                        child: InspectStructurePage(row: ''),
+                                      ),
+                                ),
+                              );
+                            },
+                            child: const Text('SAVE RECORD'),
                           ),
-                        ),
-                    ],
-                  ),
-                );
-              },
+                          if (_currentStep != 0)
+                            TextButton(
+                              onPressed: controls.onStepCancel,
+                              child: const Text(
+                                'BACK',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
               onStepTapped: (step) => setState(() => _currentStep = step),
               onStepContinue: () {
                 setState(() {

@@ -1,4 +1,3 @@
-import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:flutter/material.dart';
 
 class SummaryOfInspectionPage extends StatelessWidget {
@@ -15,11 +14,9 @@ class SummaryOfInspectionPage extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.blueGrey,
       ),
-      drawer: const NavBar(),
     );
   }
 }
 
-
-// Summary of Inspection is an excel file 
+// Summary of Inspection is an excel file
 // where all the inspection finding is being summarised.

@@ -7,10 +7,7 @@ import 'package:bridgeinsp_new/drainage/Drmodels/drpost_model.dart';
 class InspectionDetailPage extends StatelessWidget {
   final DRPostModel inspection;
 
-  const InspectionDetailPage({
-    super.key,
-    required this.inspection,
-  });
+  const InspectionDetailPage({super.key, required this.inspection});
 
   String _v(String? value) {
     final s = value?.toString().trim();
@@ -39,10 +36,7 @@ class InspectionDetailPage extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
-            flex: 6,
-            child: Text(value),
-          ),
+          Expanded(flex: 6, child: Text(value)),
         ],
       ),
     );
@@ -58,10 +52,7 @@ class InspectionDetailPage extends StatelessWidget {
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         children: children,
       ),
     );
@@ -95,7 +86,9 @@ class InspectionDetailPage extends StatelessWidget {
       Wrap(
         spacing: 10,
         runSpacing: 10,
-        children: all.map((b64) {
+        children: all.indexed.map((entry) {
+          final index = entry.$1;
+          final b64 = entry.$2;
           final bytes = _tryDecodeBase64(b64);
 
           if (bytes == null) {
@@ -107,23 +100,30 @@ class InspectionDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.grey.shade400),
               ),
-              child: const Text(
-                'Invalid\nimage',
-                textAlign: TextAlign.center,
-              ),
+              child: const Text('Invalid\nimage', textAlign: TextAlign.center),
             );
           }
 
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              width: 110,
-              height: 110,
-              color: Colors.grey.shade100,
-              child: Image.memory(
-                bytes,
-                fit: BoxFit.cover,
-              ),
+          final caption = index < (inspection.imageCaptions?.length ?? 0)
+              ? inspection.imageCaptions![index]
+              : '';
+          return SizedBox(
+            width: 140,
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: SizedBox(
+                    width: 140,
+                    height: 110,
+                    child: Image.memory(bytes, fit: BoxFit.cover),
+                  ),
+                ),
+                if (caption.trim().isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(caption, textAlign: TextAlign.center),
+                ],
+              ],
             ),
           );
         }).toList(),
@@ -134,9 +134,7 @@ class InspectionDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Review Drainage: ${inspection.id ?? '-'}'),
-      ),
+      appBar: AppBar(title: Text('Review Drainage: ${inspection.id ?? '-'}')),
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
@@ -208,23 +206,11 @@ class InspectionDetailPage extends StatelessWidget {
           ]),
 
           _section('Incoming Drain', [
-            _kv(
-              'Inlet Status',
-              _v(inspection.incdrainstatusinlet),
-            ),
-            _kv(
-              'Inlet Remark',
-              _v(inspection.incdrainexplanationinlet),
-            ),
+            _kv('Inlet Status', _v(inspection.incdrainstatusinlet)),
+            _kv('Inlet Remark', _v(inspection.incdrainexplanationinlet)),
             const Divider(),
-            _kv(
-              'Outlet Status',
-              _v(inspection.incdrainstatusoutlet),
-            ),
-            _kv(
-              'Outlet Remark',
-              _v(inspection.incdrainexplanationoutlet),
-            ),
+            _kv('Outlet Status', _v(inspection.incdrainstatusoutlet)),
+            _kv('Outlet Remark', _v(inspection.incdrainexplanationoutlet)),
           ]),
 
           _section('Routine Defects', [

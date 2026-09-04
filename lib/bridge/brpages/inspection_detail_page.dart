@@ -7,10 +7,7 @@ import 'package:bridgeinsp_new/bridge/brmodels/brpost_model.dart';
 class InspectionDetailPage extends StatelessWidget {
   final BrPostModel inspection;
 
-  const InspectionDetailPage({
-    super.key,
-    required this.inspection,
-  });
+  const InspectionDetailPage({super.key, required this.inspection});
 
   String _v(String? value) {
     final s = value?.toString().trim();
@@ -54,10 +51,7 @@ class InspectionDetailPage extends StatelessWidget {
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         children: children,
       ),
     );
@@ -91,7 +85,9 @@ class InspectionDetailPage extends StatelessWidget {
       Wrap(
         spacing: 10,
         runSpacing: 10,
-        children: all.map((b64) {
+        children: all.indexed.map((entry) {
+          final index = entry.$1;
+          final b64 = entry.$2;
           final bytes = _tryDecodeBase64(b64);
           if (bytes == null) {
             return Container(
@@ -102,23 +98,30 @@ class InspectionDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: Colors.grey.shade400),
               ),
-              child: const Text(
-                'Invalid\nimage',
-                textAlign: TextAlign.center,
-              ),
+              child: const Text('Invalid\nimage', textAlign: TextAlign.center),
             );
           }
 
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              width: 110,
-              height: 110,
-              color: Colors.grey.shade100,
-              child: Image.memory(
-                bytes,
-                fit: BoxFit.cover,
-              ),
+          final caption = index < (inspection.imageCaptions?.length ?? 0)
+              ? inspection.imageCaptions![index]
+              : '';
+          return SizedBox(
+            width: 140,
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: SizedBox(
+                    width: 140,
+                    height: 110,
+                    child: Image.memory(bytes, fit: BoxFit.cover),
+                  ),
+                ),
+                if (caption.trim().isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(caption, textAlign: TextAlign.center),
+                ],
+              ],
             ),
           );
         }).toList(),
@@ -129,9 +132,7 @@ class InspectionDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Review: ${inspection.id}'),
-      ),
+      appBar: AppBar(title: Text('Review: ${inspection.id}')),
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: [
@@ -225,9 +226,15 @@ class InspectionDetailPage extends StatelessWidget {
           ]),
 
           _section('Abutment Approach', [
-            _kv('Pavement Status', _v(inspection.abutmentapproachpavementstatus)),
+            _kv(
+              'Pavement Status',
+              _v(inspection.abutmentapproachpavementstatus),
+            ),
             _kv('Pavement Bound', _v(inspection.abutmentapproachpavementbound)),
-            _kv('Pavement Remarks', _v(inspection.abutmentapproachpavementremarks)),
+            _kv(
+              'Pavement Remarks',
+              _v(inspection.abutmentapproachpavementremarks),
+            ),
             const Divider(),
             _kv('Others', _v(inspection.abutmentapproachothers)),
             _kv('Others Status', _v(inspection.abutmentapproachothersstatus)),
@@ -265,14 +272,23 @@ class InspectionDetailPage extends StatelessWidget {
             const Divider(),
             _kv('Others', _v(inspection.decksoffitothers)),
             _kv('Others Status', _v(inspection.decksoffitothersstatus)),
-            _kv('Others Bound', _v(inspection.conditiodecksoffitothersboundnPierCrack)),
+            _kv(
+              'Others Bound',
+              _v(inspection.conditiodecksoffitothersboundnPierCrack),
+            ),
             _kv('Others Remarks', _v(inspection.decksoffitothersremarks)),
           ]),
 
           _section('Abutment / Wingwall', [
-            _kv('Movement Status', _v(inspection.abutmentwingwallmovementstatus)),
+            _kv(
+              'Movement Status',
+              _v(inspection.abutmentwingwallmovementstatus),
+            ),
             _kv('Movement Bound', _v(inspection.abutmentwingwallmovementbound)),
-            _kv('Movement Remarks', _v(inspection.abutmentwingwallmovementremarks)),
+            _kv(
+              'Movement Remarks',
+              _v(inspection.abutmentwingwallmovementremarks),
+            ),
             const Divider(),
             _kv('Crack Status', _v(inspection.abutmentwingwallcrackstatus)),
             _kv('Crack Bound', _v(inspection.abutmentwingwallcrackbound)),
@@ -280,7 +296,10 @@ class InspectionDetailPage extends StatelessWidget {
             const Divider(),
             _kv('Spalling Status', _v(inspection.abutmentwingwallspallstatus)),
             _kv('Spalling Bound', _v(inspection.abutmentwingwallspallbound)),
-            _kv('Spalling Remarks', _v(inspection.abutmentwingwallspallremarks)),
+            _kv(
+              'Spalling Remarks',
+              _v(inspection.abutmentwingwallspallremarks),
+            ),
             const Divider(),
             _kv('Others', _v(inspection.abutmentwingwallothers)),
             _kv('Others Status', _v(inspection.abutmentwingwallothersstatus)),
@@ -317,20 +336,35 @@ class InspectionDetailPage extends StatelessWidget {
 
           _section('Slope Protection / Waterway', [
             _kv('Damage Status', _v(inspection.slopeprotectiondamagestatus)),
-            _kv('Damage Bound', _v(inspection.remarksBeaslopeprotectiondamageboundmcrack)),
+            _kv(
+              'Damage Bound',
+              _v(inspection.remarksBeaslopeprotectiondamageboundmcrack),
+            ),
             _kv('Damage Remarks', _v(inspection.slopeprotectiondamageremarks)),
             const Divider(),
-            _kv('Scouring Status', _v(inspection.slopeprotectionscouringstatus)),
+            _kv(
+              'Scouring Status',
+              _v(inspection.slopeprotectionscouringstatus),
+            ),
             _kv('Scouring Bound', _v(inspection.slopeprotectionscouringbound)),
-            _kv('Scouring Remarks', _v(inspection.slopeprotectionscouringremarks)),
+            _kv(
+              'Scouring Remarks',
+              _v(inspection.slopeprotectionscouringremarks),
+            ),
             const Divider(),
             _kv('Erosion Status', _v(inspection.slopeprotectionerosionstatus)),
             _kv('Erosion Bound', _v(inspection.slopeprotectionerosionbound)),
-            _kv('Erosion Remarks', _v(inspection.slopeprotectionerosionremarks)),
+            _kv(
+              'Erosion Remarks',
+              _v(inspection.slopeprotectionerosionremarks),
+            ),
             const Divider(),
             _kv('Vegetation Status', _v(inspection.slopeprotectionvegestatus)),
             _kv('Vegetation Bound', _v(inspection.slopeprotectionvegebound)),
-            _kv('Vegetation Remarks', _v(inspection.slopeprotectionvegeremarks)),
+            _kv(
+              'Vegetation Remarks',
+              _v(inspection.slopeprotectionvegeremarks),
+            ),
             const Divider(),
             _kv('Silt Status', _v(inspection.slopeprotectionsiltstatus)),
             _kv('Silt Bound', _v(inspection.slopeprotectionsiltbound)),

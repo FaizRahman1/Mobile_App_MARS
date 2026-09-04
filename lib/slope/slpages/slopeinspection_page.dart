@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:bridgeinsp_new/slope/slmodels/slopeidlist_model.dart';
 import 'package:bridgeinsp_new/slope/slmodels/slopeinspection_model.dart';
 import 'package:bridgeinsp_new/slope/slpages/inspectstructure_page.dart';
@@ -16,10 +15,10 @@ import '../bloc/slopepi_bloc.dart';
 class SlopepiPage extends StatefulWidget {
   static final theKey = GlobalKey<_SlopepiPage>();
   final Rows
-      slidmodel; // initialised parameter passing from prev page; slopeidlist
+  slidmodel; // initialised parameter passing from prev page; slopeidlist
 
   SlopepiPage({Key? key, required this.slidmodel, DateTime? date, String? row})
-      : super(key: theKey);
+    : super(key: theKey);
 
   @override
   _SlopepiPage createState() => _SlopepiPage();
@@ -44,9 +43,7 @@ class _SlopepiPage extends State<SlopepiPage> {
       body: Column(
         children: [
           const SizedBox(height: 20),
-          Expanded(
-            child: _builddetaildetail(context),
-          ),
+          Expanded(child: _builddetaildetail(context)),
         ],
       ),
     );
@@ -60,11 +57,9 @@ class _SlopepiPage extends State<SlopepiPage> {
         child: BlocListener<SlopepiBloc, SlopepiState>(
           listener: (context, state) {
             if (state is SlopepiError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message!),
-                ),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message!)));
             }
 
             if (state is SlopepiLoaded) {}
@@ -77,9 +72,10 @@ class _SlopepiPage extends State<SlopepiPage> {
                 return _buildLoading();
               } else if (state is SlopepiLoaded) {
                 return WidgetDetail(
-                    context: context,
-                    widget: widget,
-                    slopepimodel: state.slopeInspectionModel);
+                  context: context,
+                  widget: widget,
+                  slopepimodel: state.slopeInspectionModel,
+                );
               } else if (state is SlopepiError) {
                 return Container();
               } else {
@@ -112,10 +108,7 @@ class WidgetDetail extends StatelessWidget {
     SharedPref sharedPref = SharedPref();
     List<Rows>? userlist = [];
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.slidmodel.id as String),
-      ),
-      drawer: const NavBar(),
+      appBar: AppBar(title: Text(widget.slidmodel.id as String)),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -140,14 +133,14 @@ class WidgetDetail extends StatelessWidget {
               ),
               Text(
                 'Date of Last Inspection : ${widget.slidmodel.dateofinsp}',
-                style:
-                    const TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontStyle: FontStyle.italic,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              
+              const SizedBox(height: 20),
+
               const SizedBox(height: 30),
               const Divider(),
               const SizedBox(height: 10),
@@ -156,11 +149,12 @@ class WidgetDetail extends StatelessWidget {
                 icon: const Icon(Icons.settings),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Slopeinventory(
-                                row: slopepimodel.id,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          Slopeinventory(row: slopepimodel.id),
+                    ),
+                  );
                 },
                 title: 'General Data',
                 model: slopepimodel,
@@ -170,11 +164,12 @@ class WidgetDetail extends StatelessWidget {
                 icon: const Icon(Icons.settings),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => InspectStructurePage(
-                                row: slopepimodel.id,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          InspectStructurePage(row: slopepimodel.id),
+                    ),
+                  );
                 },
                 title: 'New Inspection - Inspect Structure',
                 model: slopepimodel,
@@ -184,11 +179,13 @@ class WidgetDetail extends StatelessWidget {
                 icon: const Icon(Icons.settings),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ReviewInspectionPage(
-                                 row: slopepimodel.id ?? "Unknown ID",
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReviewInspectionPage(
+                        row: slopepimodel.id ?? "Unknown ID",
+                      ),
+                    ),
+                  );
                 },
                 title: 'New Inspection - Review of Inspection',
                 model: slopepimodel,
@@ -199,57 +196,66 @@ class WidgetDetail extends StatelessWidget {
                 icon: const Icon(Icons.settings),
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => TestingTab(
-                                row: slopepimodel.id,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TestingTab(row: slopepimodel.id),
+                    ),
+                  );
                 },
                 title: 'Testing Tab',
                 model: slopepimodel,
               ),
+
               // ---
 
               // <function save data to local> SUBMIT
-
               SizedBox(
                 width: 100,
                 child: ElevatedButton(
-                    onPressed: () async {
-                      Rows usertemp = widget.slidmodel;
-                      try {
-                        List<Rows> user =
-                            Rows.decode(await sharedPref.read("list"));
-                        user.add(usertemp);
-                        String encodedData = Rows.encode(user);
-                        sharedPref.save("list", encodedData);
-                      } catch (Excepetion) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("New List will be created"),
-                                duration: Duration(milliseconds: 500)));
-                        userlist.add(usertemp);
-                        String encodedData = Rows.encode(userlist);
-                        sharedPref.save("list", encodedData);
-                      }
-
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("Saved!"),
-                          duration: Duration(milliseconds: 500)));
-                    },
-                    style: ElevatedButton.styleFrom(
-                        //     backgroundColor: const Color.fromARGB(
-                        //   50,
-                        //   100,
-                        //   200,
-                        //   164,
-                        // )
+                  onPressed: () async {
+                    Rows usertemp = widget.slidmodel;
+                    try {
+                      List<Rows> user = Rows.decode(
+                        await sharedPref.read("list"),
+                      );
+                      user.add(usertemp);
+                      String encodedData = Rows.encode(user);
+                      sharedPref.save("list", encodedData);
+                    } catch (Excepetion) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("New List will be created"),
+                          duration: Duration(milliseconds: 500),
                         ),
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    )),
+                      );
+                      userlist.add(usertemp);
+                      String encodedData = Rows.encode(userlist);
+                      sharedPref.save("list", encodedData);
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Saved!"),
+                        duration: Duration(milliseconds: 500),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    //     backgroundColor: const Color.fromARGB(
+                    //   50,
+                    //   100,
+                    //   200,
+                    //   164,
+                    // )
+                  ),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
 
               // </function save data to local>
@@ -309,9 +315,7 @@ class MenuWidget extends StatelessWidget {
       leading: Container(
         width: 40,
         height: 40,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(100),
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(100)),
         child: icon,
       ),
       trailing: endIcon
@@ -322,8 +326,12 @@ class MenuWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100),
                 // color: Colors.grey.withOpacity(0.1),
               ),
-              child: const Icon(Icons.arrow_forward,
-                  size: 18.0, color: Colors.grey))
+              child: const Icon(
+                Icons.arrow_forward,
+                size: 18.0,
+                color: Colors.grey,
+              ),
+            )
           : null,
     );
   }

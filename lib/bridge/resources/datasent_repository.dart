@@ -30,10 +30,17 @@ class DatasendRepos extends PostingRepository {
         "dateofinspection": "2023-09-21T02:00:50.069Z",
         "dateoflastinspection": "2023-09-21T02:00:50.069Z",
         "inspectedby": gibridge.inspectedby ?? "",
+        "images": gibridge.images ?? <String>[],
+        "images2": gibridge.images2 ?? <String>[],
+        "images3": gibridge.images3 ?? <String>[],
+        "images4": gibridge.images4 ?? <String>[],
+        "imageCaptions": gibridge.imageCaptions ?? <String>[],
 
         "cond_blockage_status": gibridge.surfacebridgeblockagestatus ?? "",
-        "cond_surfacebridge_blockage_bound": gibridge.surfacebridgeblockagebound ?? "",
-        "cond_surfacebridge_blockage_remarks": gibridge.surfacebridgeblockageremarks ?? "",
+        "cond_surfacebridge_blockage_bound":
+            gibridge.surfacebridgeblockagebound ?? "",
+        "cond_surfacebridge_blockage_remarks":
+            gibridge.surfacebridgeblockageremarks ?? "",
         "cond_ponding_status": gibridge.surfacebridgepondingstatus ?? "",
         "cond_ponding_bound": gibridge.surfacebridgepondingbound ?? "",
         "cond_ponding_remarks": gibridge.surfacebridgepondingremarks ?? "",
@@ -76,9 +83,12 @@ class DatasendRepos extends PostingRepository {
         "cond_pavement_bound": gibridge.abutmentapproachpavementbound ?? "",
         "cond_pavement_remarks": gibridge.abutmentapproachpavementremarks ?? "",
         "cond_abutmentapproach_others": gibridge.abutmentapproachothers ?? "",
-        "cond_abutmentapproach_others_status": gibridge.abutmentapproachothersstatus ?? "",
-        "cond_abutmentapproach_others_bound": gibridge.abutmentapproachothersbound ?? "",
-        "abutmentapproach_others_remarks": gibridge.abutmentapproachothersremarks ?? "",
+        "cond_abutmentapproach_others_status":
+            gibridge.abutmentapproachothersstatus ?? "",
+        "cond_abutmentapproach_others_bound":
+            gibridge.abutmentapproachothersbound ?? "",
+        "abutmentapproach_others_remarks":
+            gibridge.abutmentapproachothersremarks ?? "",
 
         "cond_beam_corrosion_status": gibridge.beamcorrosionstatus ?? "",
         "cond_beam_corrosion_bound": gibridge.beamcorrosionbound ?? "",
@@ -102,22 +112,36 @@ class DatasendRepos extends PostingRepository {
         "cond_decksoffit_spall_remarks": gibridge.decksoffitspallremarks ?? "",
         "cond_decksoffit_others": gibridge.decksoffitothers ?? "",
         "cond_decksoffit_others_status": gibridge.decksoffitothersstatus ?? "",
-        "cond_decksoffit_others_bound": gibridge.conditiodecksoffitothersboundnPierCrack ?? "",
-        "cond_decksoffit_others_remarks": gibridge.decksoffitothersremarks ?? "",
+        "cond_decksoffit_others_bound":
+            gibridge.conditiodecksoffitothersboundnPierCrack ?? "",
+        "cond_decksoffit_others_remarks":
+            gibridge.decksoffitothersremarks ?? "",
 
-        "cond_abutmentwingwall_movement_status": gibridge.abutmentwingwallmovementstatus ?? "",
-        "cond_abutmentwingwall_movement_bound": gibridge.abutmentwingwallmovementbound ?? "",
-        "cond_abutmentwingwall_movement_remarks": gibridge.abutmentwingwallmovementremarks ?? "",
-        "cond_abutmentwingwall_crack_status": gibridge.abutmentwingwallcrackstatus ?? "",
-        "cond_abutmentwingwall_crack_bound": gibridge.abutmentwingwallcrackbound ?? "",
-        "cond_abutmentwingwall_crack_remarks": gibridge.abutmentwingwallcrackremarks ?? "",
-        "cond_abutmentwingwall_spall_status": gibridge.abutmentwingwallspallstatus ?? "",
-        "cond_abutmentwingwall_spall_bound": gibridge.abutmentwingwallspallbound ?? "",
-        "cond_abutmentwingwall_spall_remarks": gibridge.abutmentwingwallspallremarks ?? "",
+        "cond_abutmentwingwall_movement_status":
+            gibridge.abutmentwingwallmovementstatus ?? "",
+        "cond_abutmentwingwall_movement_bound":
+            gibridge.abutmentwingwallmovementbound ?? "",
+        "cond_abutmentwingwall_movement_remarks":
+            gibridge.abutmentwingwallmovementremarks ?? "",
+        "cond_abutmentwingwall_crack_status":
+            gibridge.abutmentwingwallcrackstatus ?? "",
+        "cond_abutmentwingwall_crack_bound":
+            gibridge.abutmentwingwallcrackbound ?? "",
+        "cond_abutmentwingwall_crack_remarks":
+            gibridge.abutmentwingwallcrackremarks ?? "",
+        "cond_abutmentwingwall_spall_status":
+            gibridge.abutmentwingwallspallstatus ?? "",
+        "cond_abutmentwingwall_spall_bound":
+            gibridge.abutmentwingwallspallbound ?? "",
+        "cond_abutmentwingwall_spall_remarks":
+            gibridge.abutmentwingwallspallremarks ?? "",
         "cond_abutmentwingwall_others": gibridge.abutmentwingwallothers ?? "",
-        "cond_abutmentwingwall_others_status": gibridge.abutmentwingwallothersstatus ?? "",
-        "cond_abutmentwingwall_others_bound": gibridge.abutmentwingwallothersbound ?? "",
-        "cond_abutmentwingwall_others_remarks": gibridge.abutmentwingwallothersremarks ?? "",
+        "cond_abutmentwingwall_others_status":
+            gibridge.abutmentwingwallothersstatus ?? "",
+        "cond_abutmentwingwall_others_bound":
+            gibridge.abutmentwingwallothersbound ?? "",
+        "cond_abutmentwingwall_others_remarks":
+            gibridge.abutmentwingwallothersremarks ?? "",
 
         "cond_pier_movement_status": gibridge.piermovementstatus ?? "",
         "cond_pier_movement_bound": gibridge.piermovementbound ?? "",
@@ -138,24 +162,41 @@ class DatasendRepos extends PostingRepository {
         "cond_pier_others_bound": gibridge.pierothersbound ?? "",
         "cond_pier_others_remarks": gibridge.pierothersremarks ?? "",
 
-        "cond_slopeprotection_damage_status": gibridge.slopeprotectiondamagestatus ?? "",
-        "cond_slopeprotection_damage_bound": gibridge.remarksBeaslopeprotectiondamageboundmcrack ?? "",
-        "cond_slopeprotection_damage_remarks": gibridge.slopeprotectiondamageremarks ?? "",
-        "cond_slopeprotection_scouring_status": gibridge.slopeprotectionscouringstatus ?? "",
-        "cond_slopeprotection_scouring_bound": gibridge.slopeprotectionscouringbound ?? "",
-        "cond_slopeprotection_scouring_remarks": gibridge.slopeprotectionscouringremarks ?? "",
-        "cond_slopeprotection_erosion_bound": gibridge.slopeprotectionerosionbound ?? "",
-        "cond_slopeprotection_erosion_status": gibridge.slopeprotectionerosionstatus ?? "",
-        "cond_slopeprotection_erosion_remarks": gibridge.slopeprotectionerosionremarks ?? "",
-        "cond_slopeprotection_vege_status": gibridge.slopeprotectionvegestatus ?? "",
-        "cond_slopeprotection_vege_bound": gibridge.slopeprotectionvegebound ?? "",
-        "cond_slopeprotection_vege_remarks": gibridge.slopeprotectionvegeremarks ?? "",
-        "cond_slopeprotection_silt_status": gibridge.slopeprotectionsiltstatus ?? "",
-        "cond_slopeprotection_silt_bound": gibridge.slopeprotectionsiltbound ?? "",
-        "cond_slopeprotection_silt_remarks": gibridge.slopeprotectionsiltremarks ?? "",
+        "cond_slopeprotection_damage_status":
+            gibridge.slopeprotectiondamagestatus ?? "",
+        "cond_slopeprotection_damage_bound":
+            gibridge.remarksBeaslopeprotectiondamageboundmcrack ?? "",
+        "cond_slopeprotection_damage_remarks":
+            gibridge.slopeprotectiondamageremarks ?? "",
+        "cond_slopeprotection_scouring_status":
+            gibridge.slopeprotectionscouringstatus ?? "",
+        "cond_slopeprotection_scouring_bound":
+            gibridge.slopeprotectionscouringbound ?? "",
+        "cond_slopeprotection_scouring_remarks":
+            gibridge.slopeprotectionscouringremarks ?? "",
+        "cond_slopeprotection_erosion_bound":
+            gibridge.slopeprotectionerosionbound ?? "",
+        "cond_slopeprotection_erosion_status":
+            gibridge.slopeprotectionerosionstatus ?? "",
+        "cond_slopeprotection_erosion_remarks":
+            gibridge.slopeprotectionerosionremarks ?? "",
+        "cond_slopeprotection_vege_status":
+            gibridge.slopeprotectionvegestatus ?? "",
+        "cond_slopeprotection_vege_bound":
+            gibridge.slopeprotectionvegebound ?? "",
+        "cond_slopeprotection_vege_remarks":
+            gibridge.slopeprotectionvegeremarks ?? "",
+        "cond_slopeprotection_silt_status":
+            gibridge.slopeprotectionsiltstatus ?? "",
+        "cond_slopeprotection_silt_bound":
+            gibridge.slopeprotectionsiltbound ?? "",
+        "cond_slopeprotection_silt_remarks":
+            gibridge.slopeprotectionsiltremarks ?? "",
         "cond_slopeprotection_others": gibridge.slopeprotectionothers ?? "",
-        "cond_slopeprotection_others_status": gibridge.slopeprotectionothersstatus ?? "",
-        "cond_slopeprotection_others_remarks": gibridge.slopeprotectionothersremarks ?? "",
+        "cond_slopeprotection_others_status":
+            gibridge.slopeprotectionothersstatus ?? "",
+        "cond_slopeprotection_others_remarks":
+            gibridge.slopeprotectionothersremarks ?? "",
 
         "cond_bearing_deform_status": gibridge.bearingdeformstatus ?? "",
         "cond_bearing_deform_bound": gibridge.bearingdeformbound ?? "",
@@ -199,7 +240,8 @@ class DatasendRepos extends PostingRepository {
     if (response.statusCode == 200) {
       await NotificationService.showNotification(
         title: "Success",
-        body: "Successfully sent to Principal. Form for ${gibridge.id ?? ""} has been sent for approval.",
+        body:
+            "Successfully sent to Principal. Form for ${gibridge.id ?? ""} has been sent for approval.",
       );
 
       return AlertDialog(

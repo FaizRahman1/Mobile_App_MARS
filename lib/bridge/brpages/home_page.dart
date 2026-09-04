@@ -2,6 +2,7 @@
 
 import 'package:bridgeinsp_new/bridge/authentication/auth.dart';
 import 'package:bridgeinsp_new/generaloutline.dart';
+import 'package:bridgeinsp_new/shared/module_bottom_navigation.dart';
 import 'package:bridgeinsp_new/bridge/brpages/bridgeidlist_page.dart';
 import 'package:bridgeinsp_new/bridge/brpages/recordedinspection_page.dart';
 import 'package:bridgeinsp_new/bridge/brpages/selectedid_page.dart';
@@ -79,9 +80,7 @@ class _BrHomePageState extends State<BrHomePage> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const BridgeidlistPage(id: ''),
-      ),
+      MaterialPageRoute(builder: (context) => const BridgeidlistPage(id: '')),
     );
   }
 
@@ -89,9 +88,8 @@ class _BrHomePageState extends State<BrHomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const SelectedIdPage(
-          title: 'List of Selected Bridge IDs',
-        ),
+        builder: (context) =>
+            const SelectedIdPage(title: 'List of Selected Bridge IDs'),
       ),
     );
   }
@@ -111,9 +109,7 @@ class _BrHomePageState extends State<BrHomePage> {
   void _openModuleSelection() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (_) => const ModuleSelectionPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const ModuleSelectionPage()),
     );
   }
 
@@ -163,31 +159,10 @@ class _BrHomePageState extends State<BrHomePage> {
           const SizedBox(width: 4),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: ModuleBottomNavigation(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onNavTap,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search_rounded),
-            label: 'Search',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.list_alt_outlined),
-            selectedIcon: Icon(Icons.list_alt_rounded),
-            label: 'Inspected',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_customize_outlined),
-            selectedIcon: Icon(Icons.dashboard_customize),
-            label: 'Modules',
-          ),
-        ],
+        showModules: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -195,19 +170,15 @@ class _BrHomePageState extends State<BrHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _HeaderCard(
-                token: userToken,
-                onSearch: _openSearchBridgeId,
-              ),
+              _HeaderCard(token: userToken, onSearch: _openSearchBridgeId),
 
               const SizedBox(height: 18),
 
               Text(
                 'Quick Actions',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
               ),
 
               const SizedBox(height: 12),
@@ -249,10 +220,9 @@ class _BrHomePageState extends State<BrHomePage> {
 
               Text(
                 'Tip: Use the bottom navigation to quickly access Search, Inspected list, and Modules.',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: Colors.grey.shade700),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
               ),
             ],
           ),
@@ -266,10 +236,7 @@ class _HeaderCard extends StatelessWidget {
   final String? token;
   final VoidCallback onSearch;
 
-  const _HeaderCard({
-    required this.token,
-    required this.onSearch,
-  });
+  const _HeaderCard({required this.token, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -305,20 +272,18 @@ class _HeaderCard extends StatelessWidget {
               children: [
                 Text(
                   'Bridge Inspection',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w900),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   token == null || token!.isEmpty
                       ? 'Session: -'
                       : 'Session: ${_maskToken(token!)}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: Colors.grey.shade700),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
                 ),
               ],
             ),
@@ -355,19 +320,12 @@ class _QuickActionChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(18),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isDestructive
-              ? Colors.red.withOpacity(0.08)
-              : Colors.white,
+          color: isDestructive ? Colors.red.withOpacity(0.08) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isDestructive
-                ? Colors.red.shade200
-                : Colors.grey.shade300,
+            color: isDestructive ? Colors.red.shade200 : Colors.grey.shade300,
           ),
           boxShadow: [
             BoxShadow(
@@ -383,9 +341,7 @@ class _QuickActionChip extends StatelessWidget {
             Icon(
               icon,
               size: 18,
-              color: isDestructive
-                  ? Colors.red
-                  : colorScheme.primary,
+              color: isDestructive ? Colors.red : colorScheme.primary,
             ),
             const SizedBox(width: 8),
             Text(
@@ -393,9 +349,7 @@ class _QuickActionChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
-                color: isDestructive
-                    ? Colors.red
-                    : Colors.grey.shade900,
+                color: isDestructive ? Colors.red : Colors.grey.shade900,
               ),
             ),
           ],
@@ -407,69 +361,55 @@ class _QuickActionChip extends StatelessWidget {
 
 Future<bool> _showLogoutConfirmationDialog(BuildContext context) async {
   return await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Confirm Logout'),
-        content: const Text('Are you sure you want to log out?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Log Out'),
-          ),
-        ],
-      );
-    },
-  ) ??
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Logout'),
+            content: const Text('Are you sure you want to log out?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Log Out'),
+              ),
+            ],
+          );
+        },
+      ) ??
       false;
 }
 
 class NetworkErrorDialog extends StatelessWidget {
-  const NetworkErrorDialog({
-    super.key,
-    this.onPressed,
-  });
+  const NetworkErrorDialog({super.key, this.onPressed});
 
   final Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 200,
-            child: Image.asset('images/PLUS.png'),
-          ),
+          SizedBox(width: 200, child: Image.asset('images/PLUS.png')),
           const SizedBox(height: 32),
           const Text(
             "Whoops!",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           const Text(
             "No internet connection found.",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -479,10 +419,7 @@ class NetworkErrorDialog extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: onPressed,
-            child: const Text("OK"),
-          ),
+          FilledButton(onPressed: onPressed, child: const Text("OK")),
           FilledButton(
             child: const Text(" Cancel"),
             onPressed: () {

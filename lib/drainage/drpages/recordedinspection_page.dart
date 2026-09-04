@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,8 +7,8 @@ import 'package:bridgeinsp_new/drainage/drpages/inspection_detail_page.dart';
 // If your home page class name is different (e.g. HomePage), update it here.
 import 'package:bridgeinsp_new/drainage/drpages/home_page.dart';
 import 'package:bridgeinsp_new/drainage/drpages/editinspection.dart';
+import 'package:bridgeinsp_new/shared/module_bottom_navigation.dart';
 import 'package:bridgeinsp_new/drainage/resources/general_inspection_api.dart';
-
 
 class RecordedInspection extends StatefulWidget {
   const RecordedInspection({super.key});
@@ -77,8 +76,14 @@ class _RecordedInspectionState extends State<RecordedInspection> {
         title: const Text('Delete saved inspection?'),
         content: Text('This will remove saved inspection for:\n\n${item.id}'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
@@ -104,21 +109,18 @@ class _RecordedInspectionState extends State<RecordedInspection> {
     );
   }
 
-Future<void> _edit(DRPostModel item) async {
-  final updated = await Navigator.push<bool>(
-    context,
-    MaterialPageRoute(
-      builder: (_) => EditInspectionPage(model: item),
-    ),
-  );
+  Future<void> _edit(DRPostModel item) async {
+    final updated = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => EditInspectionPage(model: item)),
+    );
 
-  // If user saved changes, reload the list
-  if (updated == true) {
-    await _load(); // <-- your existing function that reloads SharedPref list
-    if (mounted) setState(() {});
+    // If user saved changes, reload the list
+    if (updated == true) {
+      await _load(); // <-- your existing function that reloads SharedPref list
+      if (mounted) setState(() {});
+    }
   }
-}
-
 
   Future<void> _submit(DRPostModel item) async {
     if (_submittingIds.contains(item.id)) return;
@@ -230,29 +232,12 @@ Future<void> _edit(DRPostModel item) async {
       ),
 
       // ✅ Modern Bottom Navigation (no Drawer)
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: ModuleBottomNavigation(
         selectedIndex: 2,
         onDestinationSelected: (i) {
           if (i == 0) return _goHome();
           if (i == 1) return _goSearch();
         },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.fact_check_outlined),
-            selectedIcon: Icon(Icons.fact_check),
-            label: 'Inspected',
-          ),
-        ],
       ),
 
       floatingActionButton: FloatingActionButton.extended(
@@ -279,24 +264,25 @@ Future<void> _edit(DRPostModel item) async {
                     : items.isEmpty
                     ? _EmptyState(onStart: _goSearch)
                     : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.only(bottom: 110),
-                    itemCount: items.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return _InspectionCard(
-                        item: item,
-                        isSubmitting: _submittingIds.contains(item.id),
-                        onReview: () => _review(item),
-                        onEdit: () => _edit(item),
-                        onSubmit: () => _submit(item),
-                        onDelete: () => _delete(item),
-                      );
-                    },
-                  ),
-                ),
+                        onRefresh: _load,
+                        child: ListView.separated(
+                          padding: const EdgeInsets.only(bottom: 110),
+                          itemCount: items.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+                            return _InspectionCard(
+                              item: item,
+                              isSubmitting: _submittingIds.contains(item.id),
+                              onReview: () => _review(item),
+                              onEdit: () => _edit(item),
+                              onSubmit: () => _submit(item),
+                              onDelete: () => _delete(item),
+                            );
+                          },
+                        ),
+                      ),
               ),
             ],
           ),
@@ -348,7 +334,10 @@ class _HeaderCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(999),
                     color: Theme.of(context).colorScheme.secondaryContainer,
@@ -367,7 +356,9 @@ class _HeaderCard extends StatelessWidget {
                 hintText: 'Search Drainage ID...',
                 prefixIcon: const Icon(Icons.search),
                 isDense: true,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
           ],
@@ -433,12 +424,18 @@ class _InspectionCard extends StatelessWidget {
                     children: [
                       Text(
                         id,
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      Text('Date: $date', style: TextStyle(color: Colors.grey.shade700)),
+                      Text(
+                        'Date: $date',
+                        style: TextStyle(color: Colors.grey.shade700),
+                      ),
                     ],
                   ),
                 ),
@@ -459,7 +456,9 @@ class _InspectionCard extends StatelessWidget {
                     label: const Text('Review'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
@@ -471,7 +470,9 @@ class _InspectionCard extends StatelessWidget {
                     label: const Text('Edit'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
@@ -488,7 +489,9 @@ class _InspectionCard extends StatelessWidget {
                     label: Text(isSubmitting ? 'Sending' : 'Submit'),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),

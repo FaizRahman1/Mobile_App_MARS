@@ -53,6 +53,7 @@ class DRPostModel {
   final List<String>? images2;
   final List<String>? images3;
   final List<String>? images4;
+  final List<String>? imageCaptions;
 
   DRPostModel({
     required this.id,
@@ -102,6 +103,7 @@ class DRPostModel {
     this.images2,
     this.images3,
     this.images4,
+    this.imageCaptions,
   });
 
   // NOTE: This helper makes decoding old saved JSON safe.
@@ -122,12 +124,11 @@ class DRPostModel {
 
     return DRPostModel(
       id: (json['id'] ?? '').toString(),
-      assetInternalId: int.tryParse(
-        (json['assetInternalId'] ?? '').toString(),
-      ),
+      assetInternalId: int.tryParse((json['assetInternalId'] ?? '').toString()),
 
-      weathercondition:
-          _s(json['weather_condition'] ?? json['weater_condition']),
+      weathercondition: _s(
+        json['weather_condition'] ?? json['weater_condition'],
+      ),
       siltationdiameterinlet: _s(json['siltation_diameter_inlet']),
       siltationdiameteroutlet: _s(json['siltation_diameter_outlet']),
       vegecoverinlet: _s(json['vege_cover_inlet']),
@@ -171,6 +172,9 @@ class DRPostModel {
       images2: (json['images2'] as List?)?.map((e) => e.toString()).toList(),
       images3: (json['images3'] as List?)?.map((e) => e.toString()).toList(),
       images4: (json['images4'] as List?)?.map((e) => e.toString()).toList(),
+      imageCaptions: (json['imageCaptions'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
     );
   }
 
@@ -222,6 +226,7 @@ class DRPostModel {
     List<String>? images2,
     List<String>? images3,
     List<String>? images4,
+    List<String>? imageCaptions,
   }) {
     return DRPostModel(
       id: id,
@@ -266,11 +271,11 @@ class DRPostModel {
       routinedefect5: routinedefect5,
       otherdefect5: otherdefect5,
 
-
       images: images,
       images2: images2,
       images3: images3,
       images4: images4,
+      imageCaptions: imageCaptions,
     );
   }
 
@@ -302,7 +307,7 @@ class DRPostModel {
     'incdrain_explanation_inlet': incdrainexplanationinlet,
     'incdrain_status_outlet': incdrainstatusoutlet,
     'incdrain_explanation_outlet': incdrainexplanationoutlet,
-    'routinedefect1':routinedefect1,
+    'routinedefect1': routinedefect1,
     'otherdefect1': otherdefect1,
     'routinedefect2': routinedefect2,
     'otherdefect2': otherdefect2,
@@ -319,11 +324,14 @@ class DRPostModel {
     'images2': images2,
     'images3': images3,
     'images4': images4,
+    'imageCaptions': imageCaptions,
   };
 
   static String encode(List<DRPostModel> list) =>
       json.encode(list.map((e) => e.toJson()).toList());
 
   static List<DRPostModel> decode(String source) =>
-      (json.decode(source) as List).map((e) => DRPostModel.fromJson(e)).toList();
+      (json.decode(source) as List)
+          .map((e) => DRPostModel.fromJson(e))
+          .toList();
 }

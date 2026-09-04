@@ -19,9 +19,7 @@ class SLDatasendRepos extends PostingRepository {
   SLDatasendRepos({Dio? dio}) : _dio = dio ?? Dio();
 
   @override
-  Future<AlertDialog> senddetaillist(
-    SLPostModel slopeInspection,
-  ) async {
+  Future<AlertDialog> senddetaillist(SLPostModel slopeInspection) async {
     debugPrint('Slope repository reachable');
 
     final String submissionId = uuid.v4();
@@ -44,12 +42,10 @@ class SLDatasendRepos extends PostingRepository {
               slopeInspection.vegetationControlForm ?? '',
           'Vegetation Control Form Description':
               slopeInspection.vegetationControlFormdesc ?? '',
-          'Drain Cleaning Form':
-              slopeInspection.drainCleaningForm ?? '',
+          'Drain Cleaning Form': slopeInspection.drainCleaningForm ?? '',
           'Drain Cleaning Form Description':
               slopeInspection.drainCleaningFormdesc ?? '',
-          'Gully Repair Form':
-              slopeInspection.gullyrepairform ?? '',
+          'Gully Repair Form': slopeInspection.gullyrepairform ?? '',
           'Gully Repair Form Description':
               slopeInspection.gullyrepairformdesc ?? '',
           'Concrete Restoration Form':
@@ -64,11 +60,9 @@ class SLDatasendRepos extends PostingRepository {
               slopeInspection.earthdrainresectioningform ?? '',
           'Earth Drain Resectioning Form Description':
               slopeInspection.earthdrainresectioningformdesc ?? '',
-          'Other Routine Work':
-              slopeInspection.otherroutinework ?? '',
+          'Other Routine Work': slopeInspection.otherroutinework ?? '',
           'Status RM': slopeInspection.statusrm ?? '',
-          'Date of Inspection':
-              slopeInspection.dateofinsp.toIso8601String(),
+          'Date of Inspection': slopeInspection.dateofinsp.toIso8601String(),
           'Inspected By': slopeInspection.inspectedby,
           'Maintained By': slopeInspection.maintainedby,
 
@@ -77,12 +71,11 @@ class SLDatasendRepos extends PostingRepository {
           'Images2': slopeInspection.images2 ?? <String>[],
           'Images3': slopeInspection.images3 ?? <String>[],
           'Images4': slopeInspection.images4 ?? <String>[],
+          'ImageCaptions': slopeInspection.imageCaptions ?? <String>[],
         },
       );
 
-      debugPrint(
-        'Slope API response: ${response.statusCode} ${response.data}',
-      );
+      debugPrint('Slope API response: ${response.statusCode} ${response.data}');
 
       final statusCode = response.statusCode ?? 0;
       final isSuccessful = statusCode >= 200 && statusCode < 300;
@@ -145,9 +138,7 @@ class SLDatasendRepos extends PostingRepository {
 
       return const AlertDialog(
         title: Text('Failed'),
-        content: Text(
-          'An unexpected error occurred. Please try again.',
-        ),
+        content: Text('An unexpected error occurred. Please try again.'),
       );
     }
   }

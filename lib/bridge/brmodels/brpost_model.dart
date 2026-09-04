@@ -192,6 +192,7 @@ class BrPostModel {
   final List<String>? images2;
   final List<String>? images3;
   final List<String>? images4;
+  final List<String>? imageCaptions;
 
   BrPostModel({
     required this.id,
@@ -369,6 +370,7 @@ class BrPostModel {
     this.images2,
     this.images3,
     this.images4,
+    this.imageCaptions,
   });
 
   // NOTE: This helper makes decoding old saved JSON safe.
@@ -437,9 +439,15 @@ class BrPostModel {
       abutmentapproachpavementbound: _s(json['cond_pavement_bound']),
       abutmentapproachpavementremarks: _s(json['cond_pavement_remarks']),
       abutmentapproachothers: _s(json['cond_abutmentapproach_others']),
-      abutmentapproachothersstatus: _s(json['cond_abutmentapproach_others_status']),
-      abutmentapproachothersbound: _s(json['cond_abutmentapproach_others_bound']),
-      abutmentapproachothersremarks: _s(json['abutmentapproach_others_remarks']),
+      abutmentapproachothersstatus: _s(
+        json['cond_abutmentapproach_others_status'],
+      ),
+      abutmentapproachothersbound: _s(
+        json['cond_abutmentapproach_others_bound'],
+      ),
+      abutmentapproachothersremarks: _s(
+        json['abutmentapproach_others_remarks'],
+      ),
 
       beamcorrosionstatus: _s(json['cond_beam_corrosion_status']),
       beamcorrosionbound: _s(json['cond_beam_corrosion_bound']),
@@ -463,22 +471,44 @@ class BrPostModel {
       decksoffitspallremarks: _s(json['cond_decksoffit_spall_remarks']),
       decksoffitothers: _s(json['cond_decksoffit_others']),
       decksoffitothersstatus: _s(json['cond_decksoffit_others_status']),
-      conditiodecksoffitothersboundnPierCrack: _s(json['cond_decksoffit_others_bound']),
+      conditiodecksoffitothersboundnPierCrack: _s(
+        json['cond_decksoffit_others_bound'],
+      ),
       decksoffitothersremarks: _s(json['cond_decksoffit_others_remarks']),
 
-      abutmentwingwallmovementstatus: _s(json['cond_abutmentwingwall_movement_status']),
-      abutmentwingwallmovementbound: _s(json['cond_abutmentwingwall_movement_bound']),
-      abutmentwingwallmovementremarks: _s(json['cond_abutmentwingwall_movement_remarks']),
-      abutmentwingwallcrackstatus: _s(json['cond_abutmentwingwall_crack_status']),
+      abutmentwingwallmovementstatus: _s(
+        json['cond_abutmentwingwall_movement_status'],
+      ),
+      abutmentwingwallmovementbound: _s(
+        json['cond_abutmentwingwall_movement_bound'],
+      ),
+      abutmentwingwallmovementremarks: _s(
+        json['cond_abutmentwingwall_movement_remarks'],
+      ),
+      abutmentwingwallcrackstatus: _s(
+        json['cond_abutmentwingwall_crack_status'],
+      ),
       abutmentwingwallcrackbound: _s(json['cond_abutmentwingwall_crack_bound']),
-      abutmentwingwallcrackremarks: _s(json['cond_abutmentwingwall_crack_remarks']),
-      abutmentwingwallspallstatus: _s(json['cond_abutmentwingwall_spall_status']),
+      abutmentwingwallcrackremarks: _s(
+        json['cond_abutmentwingwall_crack_remarks'],
+      ),
+      abutmentwingwallspallstatus: _s(
+        json['cond_abutmentwingwall_spall_status'],
+      ),
       abutmentwingwallspallbound: _s(json['cond_abutmentwingwall_spall_bound']),
-      abutmentwingwallspallremarks: _s(json['cond_abutmentwingwall_spall_remarks']),
+      abutmentwingwallspallremarks: _s(
+        json['cond_abutmentwingwall_spall_remarks'],
+      ),
       abutmentwingwallothers: _s(json['cond_abutmentwingwall_others']),
-      abutmentwingwallothersstatus: _s(json['cond_abutmentwingwall_others_status']),
-      abutmentwingwallothersbound: _s(json['cond_abutmentwingwall_others_bound']),
-      abutmentwingwallothersremarks: _s(json['cond_abutmentwingwall_others_remarks']),
+      abutmentwingwallothersstatus: _s(
+        json['cond_abutmentwingwall_others_status'],
+      ),
+      abutmentwingwallothersbound: _s(
+        json['cond_abutmentwingwall_others_bound'],
+      ),
+      abutmentwingwallothersremarks: _s(
+        json['cond_abutmentwingwall_others_remarks'],
+      ),
 
       piermovementstatus: _s(json['cond_pier_movement_status']),
       piermovementbound: _s(json['cond_pier_movement_bound']),
@@ -500,15 +530,33 @@ class BrPostModel {
       pierothersbound: _s(json['cond_pier_others_bound']),
       pierothersremarks: _s(json['cond_pier_others_remarks']),
 
-      slopeprotectiondamagestatus: _s(json['cond_slopeprotection_damage_status']),
-      remarksBeaslopeprotectiondamageboundmcrack: _s(json['cond_slopeprotection_damage_bound']),
-      slopeprotectiondamageremarks: _s(json['cond_slopeprotection_damage_remarks']),
-      slopeprotectionscouringstatus: _s(json['cond_slopeprotection_scouring_status']),
-      slopeprotectionscouringbound: _s(json['cond_slopeprotection_scouring_bound']),
-      slopeprotectionscouringremarks: _s(json['cond_slopeprotection_scouring_remarks']),
-      slopeprotectionerosionbound: _s(json['cond_slopeprotection_erosion_bound']),
-      slopeprotectionerosionstatus: _s(json['cond_slopeprotection_erosion_status']),
-      slopeprotectionerosionremarks: _s(json['cond_slopeprotection_erosion_remarks']),
+      slopeprotectiondamagestatus: _s(
+        json['cond_slopeprotection_damage_status'],
+      ),
+      remarksBeaslopeprotectiondamageboundmcrack: _s(
+        json['cond_slopeprotection_damage_bound'],
+      ),
+      slopeprotectiondamageremarks: _s(
+        json['cond_slopeprotection_damage_remarks'],
+      ),
+      slopeprotectionscouringstatus: _s(
+        json['cond_slopeprotection_scouring_status'],
+      ),
+      slopeprotectionscouringbound: _s(
+        json['cond_slopeprotection_scouring_bound'],
+      ),
+      slopeprotectionscouringremarks: _s(
+        json['cond_slopeprotection_scouring_remarks'],
+      ),
+      slopeprotectionerosionbound: _s(
+        json['cond_slopeprotection_erosion_bound'],
+      ),
+      slopeprotectionerosionstatus: _s(
+        json['cond_slopeprotection_erosion_status'],
+      ),
+      slopeprotectionerosionremarks: _s(
+        json['cond_slopeprotection_erosion_remarks'],
+      ),
       slopeprotectionvegestatus: _s(json['cond_slopeprotection_vege_status']),
       slopeprotectionvegebound: _s(json['cond_slopeprotection_vege_bound']),
       slopeprotectionvegeremarks: _s(json['cond_slopeprotection_vege_remarks']),
@@ -516,9 +564,13 @@ class BrPostModel {
       slopeprotectionsiltbound: _s(json['cond_slopeprotection_silt_bound']),
       slopeprotectionsiltremarks: _s(json['cond_slopeprotection_silt_remarks']),
       slopeprotectionothers: _s(json['cond_slopeprotection_others']),
-      slopeprotectionothersstatus: _s(json['cond_slopeprotection_others_status']),
+      slopeprotectionothersstatus: _s(
+        json['cond_slopeprotection_others_status'],
+      ),
       slopeprotectionothersbound: _s(json['cond_slopeprotection_others_bound']),
-      slopeprotectionothersremarks: _s(json['cond_slopeprotection_others_remarks']),
+      slopeprotectionothersremarks: _s(
+        json['cond_slopeprotection_others_remarks'],
+      ),
 
       bearingdeformstatus: _s(json['cond_bearing_deform_status']),
       bearingdeformbound: _s(json['cond_bearing_deform_bound']),
@@ -563,6 +615,9 @@ class BrPostModel {
       images2: (json['images2'] as List?)?.map((e) => e.toString()).toList(),
       images3: (json['images3'] as List?)?.map((e) => e.toString()).toList(),
       images4: (json['images4'] as List?)?.map((e) => e.toString()).toList(),
+      imageCaptions: (json['imageCaptions'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
     );
   }
 
@@ -742,6 +797,7 @@ class BrPostModel {
     List<String>? images2,
     List<String>? images3,
     List<String>? images4,
+    List<String>? imageCaptions,
   }) {
     return BrPostModel(
       id: id,
@@ -822,7 +878,8 @@ class BrPostModel {
       decksoffitspallremarks: decksoffitspallremarks,
       decksoffitothers: decksoffitothers,
       decksoffitothersstatus: decksoffitothersstatus,
-      conditiodecksoffitothersboundnPierCrack: conditiodecksoffitothersboundnPierCrack,
+      conditiodecksoffitothersboundnPierCrack:
+          conditiodecksoffitothersboundnPierCrack,
       decksoffitothersremarks: decksoffitothersremarks,
 
       abutmentwingwallmovementstatus: abutmentwingwallmovementstatus,
@@ -860,7 +917,8 @@ class BrPostModel {
       pierothersremarks: pierothersremarks,
 
       slopeprotectiondamagestatus: slopeprotectiondamagestatus,
-      remarksBeaslopeprotectiondamageboundmcrack: remarksBeaslopeprotectiondamageboundmcrack,
+      remarksBeaslopeprotectiondamageboundmcrack:
+          remarksBeaslopeprotectiondamageboundmcrack,
       slopeprotectiondamageremarks: slopeprotectiondamageremarks,
       slopeprotectionscouringstatus: slopeprotectionscouringstatus,
       slopeprotectionscouringbound: slopeprotectionscouringbound,
@@ -918,6 +976,7 @@ class BrPostModel {
       images2: images2,
       images3: images3,
       images4: images4,
+      imageCaptions: imageCaptions,
     );
   }
 
@@ -1034,7 +1093,8 @@ class BrPostModel {
     'cond_pier_others_remarks': pierothersremarks,
 
     'cond_slopeprotection_damage_status': slopeprotectiondamagestatus,
-    'cond_slopeprotection_damage_bound': remarksBeaslopeprotectiondamageboundmcrack,
+    'cond_slopeprotection_damage_bound':
+        remarksBeaslopeprotectiondamageboundmcrack,
     'cond_slopeprotection_damage_remarks': slopeprotectiondamageremarks,
     'cond_slopeprotection_scouring_status': slopeprotectionscouringstatus,
     'cond_slopeprotection_scouring_bound': slopeprotectionscouringbound,
@@ -1095,11 +1155,14 @@ class BrPostModel {
     'images2': images2,
     'images3': images3,
     'images4': images4,
+    'imageCaptions': imageCaptions,
   };
 
   static String encode(List<BrPostModel> list) =>
       json.encode(list.map((e) => e.toJson()).toList());
 
   static List<BrPostModel> decode(String source) =>
-      (json.decode(source) as List).map((e) => BrPostModel.fromJson(e)).toList();
+      (json.decode(source) as List)
+          .map((e) => BrPostModel.fromJson(e))
+          .toList();
 }

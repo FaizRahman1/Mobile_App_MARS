@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:bridgeinsp_new/drainage/Drmodels/drpost_model.dart';
 import 'package:bridgeinsp_new/drainage/Drmodels/Drainageidlist_model.dart';
 import 'package:bridgeinsp_new/drainage/Drmodels/sendmodel.dart';
@@ -37,23 +36,26 @@ class InspectionPhoto {
   final double? longitude;
   final double? accuracy;
   final DateTime capturedAt;
+  String caption;
 
-  const InspectionPhoto({
+  InspectionPhoto({
     required this.file,
     required this.latitude,
     required this.longitude,
     required this.accuracy,
     required this.capturedAt,
+    this.caption = '',
   });
 
   Map<String, dynamic> toJson() => {
-        'fileName': file.name,
-        'filePath': file.path,
-        'latitude': latitude,
-        'longitude': longitude,
-        'accuracy': accuracy,
-        'capturedAt': capturedAt.toIso8601String(),
-      };
+    'fileName': file.name,
+    'filePath': file.path,
+    'latitude': latitude,
+    'longitude': longitude,
+    'accuracy': accuracy,
+    'capturedAt': capturedAt.toIso8601String(),
+    'caption': caption,
+  };
 }
 
 class InspectionPage extends StatefulWidget {
@@ -193,9 +195,9 @@ class _InspectionPageState extends State<InspectionPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isGettingLocation = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add image: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add image: $e')));
     }
   }
 
@@ -252,33 +254,33 @@ class _InspectionPageState extends State<InspectionPage> {
   }
 
   List<Widget> _stepBodies() => [
-        _StepCard(
-          title: "General Data",
-          subtitle: "Basic Drainage information",
-          child: Bridgeinventory(row: widget.row),
-        ),
-        _StepCard(
-          title: "Inspection Form",
-          subtitle: "Record defects and conditions",
-          child: structuresecondform,
-        ),
-        _StepCard(
-          title: "Pictures",
-          subtitle: "Add site photos (optional)",
-          child: _ImagePickerModern(
-            photos: _photos,
-            isGettingLocation: _isGettingLocation,
-            onAdd: _showPickImageSheet,
-            onRemove: _removeImage,
-          ),
-        ),
-      ];
+    _StepCard(
+      title: "General Data",
+      subtitle: "Basic Drainage information",
+      child: Bridgeinventory(row: widget.row),
+    ),
+    _StepCard(
+      title: "Inspection Form",
+      subtitle: "Record defects and conditions",
+      child: structuresecondform,
+    ),
+    _StepCard(
+      title: "Pictures",
+      subtitle: "Add site photos (optional)",
+      child: _ImagePickerModern(
+        photos: _photos,
+        isGettingLocation: _isGettingLocation,
+        onAdd: _showPickImageSheet,
+        onRemove: _removeImage,
+      ),
+    ),
+  ];
 
   List<_StepMeta> _steps() => const [
-        _StepMeta("General", Icons.info_outline),
-        _StepMeta("Inspection", Icons.fact_check_outlined),
-        _StepMeta("Pictures", Icons.photo_library_outlined),
-      ];
+    _StepMeta("General", Icons.info_outline),
+    _StepMeta("Inspection", Icons.fact_check_outlined),
+    _StepMeta("Pictures", Icons.photo_library_outlined),
+  ];
 
   Future<void> _saveInspection() async {
     final confirm = await showDialog<bool>(
@@ -315,10 +317,12 @@ class _InspectionPageState extends State<InspectionPage> {
     final sendInfoDto = SendInfo(
       id: widget.row.toString(),
       weathercondition: _safeToString(formBloc.cond_weather_condition.value),
-      siltationdiameterinlet:
-          _safeToString(formBloc.cond_siltation_inlet.value),
-      siltationdiameteroutlet:
-          _safeToString(formBloc.cond_siltation_outlet.value),
+      siltationdiameterinlet: _safeToString(
+        formBloc.cond_siltation_inlet.value,
+      ),
+      siltationdiameteroutlet: _safeToString(
+        formBloc.cond_siltation_outlet.value,
+      ),
       vegecoverinlet: _safeToString(formBloc.cond_vegetation_inlet.value),
       vegecoveroutlet: _safeToString(formBloc.cond_vegetation_outlet.value),
       headwallstatusinlet: _safeToString(formBloc.cond_headwall_inlet.value),
@@ -329,26 +333,34 @@ class _InspectionPageState extends State<InspectionPage> {
       sumpstatusoutlet: _safeToString(formBloc.cond_sump_outlet.value),
       apronstatusinlet: _safeToString(formBloc.cond_apron_inlet.value),
       apronstatusoutlet: _safeToString(formBloc.cond_apron_outlet.value),
-      incdrainstatusinlet:
-          _safeToString(formBloc.cond_incomingdrain_inlet.value),
-      incdrainstatusoutlet:
-          _safeToString(formBloc.cond_incomingdrain_outlet.value),
-      headwallexplainationinlet:
-          _safeToString(formBloc.exp_headwall_inlet.value),
-      headwallexplainationoutlet:
-          _safeToString(formBloc.exp_headwall_outlet.value),
-      wingwallexplanationinlet:
-          _safeToString(formBloc.exp_wingwall_inlet.value),
-      wingwallexplanationoutlet:
-          _safeToString(formBloc.exp_wingwall_outlet.value),
+      incdrainstatusinlet: _safeToString(
+        formBloc.cond_incomingdrain_inlet.value,
+      ),
+      incdrainstatusoutlet: _safeToString(
+        formBloc.cond_incomingdrain_outlet.value,
+      ),
+      headwallexplainationinlet: _safeToString(
+        formBloc.exp_headwall_inlet.value,
+      ),
+      headwallexplainationoutlet: _safeToString(
+        formBloc.exp_headwall_outlet.value,
+      ),
+      wingwallexplanationinlet: _safeToString(
+        formBloc.exp_wingwall_inlet.value,
+      ),
+      wingwallexplanationoutlet: _safeToString(
+        formBloc.exp_wingwall_outlet.value,
+      ),
       sumpexplanationinlet: _safeToString(formBloc.exp_sump_inlet.value),
       sumpexplanationoutlet: _safeToString(formBloc.exp_sump_outlet.value),
       apronexplanationinlet: _safeToString(formBloc.exp_apron_inlet.value),
       apronexplanationoutlet: _safeToString(formBloc.exp_apron_outlet.value),
-      incdrainexplanationinlet:
-          _safeToString(formBloc.exp_incomingdrain_inlet.value),
-      incdrainexplanationoutlet:
-          _safeToString(formBloc.exp_incomingdrain_outlet.value),
+      incdrainexplanationinlet: _safeToString(
+        formBloc.exp_incomingdrain_inlet.value,
+      ),
+      incdrainexplanationoutlet: _safeToString(
+        formBloc.exp_incomingdrain_outlet.value,
+      ),
       routinedefect1: _safeToString(formBloc.routine_defect1.value),
       routinedefect2: _safeToString(formBloc.routine_defect2.value),
       routinedefect3: _safeToString(formBloc.routine_defect3.value),
@@ -411,6 +423,7 @@ class _InspectionPageState extends State<InspectionPage> {
         images2: sendInfoDto.images2,
         images3: sendInfoDto.images3,
         images4: sendInfoDto.images4,
+        imageCaptions: _photos.map((photo) => photo.caption.trim()).toList(),
       );
 
       final sharedPref = SharedPref();
@@ -451,9 +464,9 @@ class _InspectionPageState extends State<InspectionPage> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Saved locally!")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Saved locally!")));
 
       final goToRecorded = await showDialog<bool>(
         context: context,
@@ -481,9 +494,9 @@ class _InspectionPageState extends State<InspectionPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Save failed: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Save failed: $e")));
     }
   }
 
@@ -511,12 +524,12 @@ class _InspectionPageState extends State<InspectionPage> {
     final bodies = _stepBodies();
 
     return Scaffold(
-      drawer: const NavBar(),
       appBar: AppBar(
         title: Column(
           children: [
-             Text("Drainage General Inspection",
-            style: Theme.of(context).textTheme.labelLarge,
+            Text(
+              "Drainage General Inspection",
+              style: Theme.of(context).textTheme.labelLarge,
             ),
             Text(
               "Drainage ID: ${widget.row ?? '-'}",
@@ -553,8 +566,9 @@ class _InspectionPageState extends State<InspectionPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed:
-                      _currentStep == _stepCount - 1 ? _saveInspection : _next,
+                  onPressed: _currentStep == _stepCount - 1
+                      ? _saveInspection
+                      : _next,
                   icon: Icon(
                     _currentStep == _stepCount - 1
                         ? Icons.save
@@ -773,10 +787,7 @@ class _ImagePickerModern extends StatelessWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          Image.file(
-                            File(photo.file.path),
-                            fit: BoxFit.cover,
-                          ),
+                          Image.file(File(photo.file.path), fit: BoxFit.cover),
                           Positioned(
                             top: 8,
                             right: 8,
@@ -845,23 +856,35 @@ class _ImagePickerModern extends StatelessWidget {
                             label: 'Captured at',
                             value: _formatDateTime(photo.capturedAt),
                           ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            initialValue: photo.caption,
+                            maxLength: 50,
+                            decoration: const InputDecoration(
+                              labelText: 'Photo caption',
+                              hintText: 'Describe this picture',
+                              prefixIcon: Icon(Icons.notes_outlined),
+                              border: OutlineInputBorder(),
+                            ),
+                            onChanged: (value) => photo.caption = value,
+                          ),
                           if (!hasCoordinate) ...[
                             const SizedBox(height: 10),
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .errorContainer,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.errorContainer,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 'GPS location was not available for this photo.',
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onErrorContainer,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onErrorContainer,
                                 ),
                               ),
                             ),

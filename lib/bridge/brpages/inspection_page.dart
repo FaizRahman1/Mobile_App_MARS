@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bridgeinsp_new/generaloutline.dart';
 import 'package:bridgeinsp_new/bridge/brmodels/brpost_model.dart';
 import 'package:bridgeinsp_new/bridge/brmodels/bridgeidlist_model.dart';
 import 'package:bridgeinsp_new/bridge/brmodels/sendmodel.dart';
@@ -31,31 +30,32 @@ class SharedPref {
   }
 }
 
-
-
 class InspectionPhoto {
   final XFile file;
   final double? latitude;
   final double? longitude;
   final double? accuracy;
   final DateTime capturedAt;
+  String caption;
 
-  const InspectionPhoto({
+  InspectionPhoto({
     required this.file,
     required this.latitude,
     required this.longitude,
     required this.accuracy,
     required this.capturedAt,
+    this.caption = '',
   });
 
   Map<String, dynamic> toJson() => {
-        'fileName': file.name,
-        'filePath': file.path,
-        'latitude': latitude,
-        'longitude': longitude,
-        'accuracy': accuracy,
-        'capturedAt': capturedAt.toIso8601String(),
-      };
+    'fileName': file.name,
+    'filePath': file.path,
+    'latitude': latitude,
+    'longitude': longitude,
+    'accuracy': accuracy,
+    'capturedAt': capturedAt.toIso8601String(),
+    'caption': caption,
+  };
 }
 
 class InspectionPage extends StatefulWidget {
@@ -115,9 +115,7 @@ class _InspectionPageState extends State<InspectionPage> {
     if (permission == LocationPermission.denied) {
       if (!mounted) return null;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Location permission was denied.'),
-        ),
+        const SnackBar(content: Text('Location permission was denied.')),
       );
       return null;
     }
@@ -138,11 +136,9 @@ class _InspectionPageState extends State<InspectionPage> {
       return null;
     }
 
-return Geolocator.getCurrentPosition(
-  desiredAccuracy: LocationAccuracy.high,
-).timeout(
-  const Duration(seconds: 15),
-);
+    return Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    ).timeout(const Duration(seconds: 15));
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -190,9 +186,9 @@ return Geolocator.getCurrentPosition(
     } catch (e) {
       if (!mounted) return;
       setState(() => _isGettingLocation = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add image: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add image: $e')));
     }
   }
 
@@ -250,33 +246,33 @@ return Geolocator.getCurrentPosition(
 
   // --- Modern steps content (wrapped in cards) ---
   List<Widget> _stepBodies() => [
-        _StepCard(
-          title: "General Data",
-          subtitle: "Basic bridge information",
-          child: Bridgeinventory(row: widget.row),
-        ),
-        _StepCard(
-          title: "Inspection Form",
-          subtitle: "Record defects and conditions",
-          child: structuresecondform,
-        ),
-        _StepCard(
-          title: "Pictures",
-          subtitle: "Add site photos (optional)",
-          child: _ImagePickerModern(
-            photos: _photos,
-            isGettingLocation: _isGettingLocation,
-            onAdd: _showPickImageSheet,
-            onRemove: _removeImage,
-          ),
-        ),
-      ];
+    _StepCard(
+      title: "General Data",
+      subtitle: "Basic bridge information",
+      child: Bridgeinventory(row: widget.row),
+    ),
+    _StepCard(
+      title: "Inspection Form",
+      subtitle: "Record defects and conditions",
+      child: structuresecondform,
+    ),
+    _StepCard(
+      title: "Pictures",
+      subtitle: "Add site photos (optional)",
+      child: _ImagePickerModern(
+        photos: _photos,
+        isGettingLocation: _isGettingLocation,
+        onAdd: _showPickImageSheet,
+        onRemove: _removeImage,
+      ),
+    ),
+  ];
 
   List<_StepMeta> _steps() => const [
-        _StepMeta("General", Icons.info_outline),
-        _StepMeta("Inspection", Icons.fact_check_outlined),
-        _StepMeta("Pictures", Icons.photo_library_outlined),
-      ];
+    _StepMeta("General", Icons.info_outline),
+    _StepMeta("Inspection", Icons.fact_check_outlined),
+    _StepMeta("Pictures", Icons.photo_library_outlined),
+  ];
 
   Future<void> _saveInspection() async {
     final confirm = await showDialog<bool>(
@@ -315,29 +311,41 @@ return Geolocator.getCurrentPosition(
     final sendInfoDto = SendInfo(
       id: widget.row.toString(),
 
-      surfacebridgeblockagestatus:
-          _safeToString(formBloc.cond_blockage_status.value),
-      surfacebridgeblockagebound:
-          _safeToString(formBloc.cond_surfacebridge_blockage_bound.value),
-      surfacebridgeblockageremarks:
-          _safeToString(formBloc.cond_surfacebridge_blockage_remarks.value),
-      surfacebridgepondingstatus:
-          _safeToString(formBloc.cond_ponding_status.value),
-      surfacebridgepondingbound: _safeToString(formBloc.cond_ponding_bound.value),
-      surfacebridgepondingremarks:
-          _safeToString(formBloc.cond_ponding_remarks.value),
-      surfacebridgeothers:
-          _safeToString(formBloc.cond_surfacebridge_others.value),
-      surfacebridgeothersstatus:
-          _safeToString(formBloc.cond_surfacebridge_Status.value),
+      surfacebridgeblockagestatus: _safeToString(
+        formBloc.cond_blockage_status.value,
+      ),
+      surfacebridgeblockagebound: _safeToString(
+        formBloc.cond_surfacebridge_blockage_bound.value,
+      ),
+      surfacebridgeblockageremarks: _safeToString(
+        formBloc.cond_surfacebridge_blockage_remarks.value,
+      ),
+      surfacebridgepondingstatus: _safeToString(
+        formBloc.cond_ponding_status.value,
+      ),
+      surfacebridgepondingbound: _safeToString(
+        formBloc.cond_ponding_bound.value,
+      ),
+      surfacebridgepondingremarks: _safeToString(
+        formBloc.cond_ponding_remarks.value,
+      ),
+      surfacebridgeothers: _safeToString(
+        formBloc.cond_surfacebridge_others.value,
+      ),
+      surfacebridgeothersstatus: _safeToString(
+        formBloc.cond_surfacebridge_Status.value,
+      ),
       surfacebridgeothersbound: _safeToString(formBloc.cond_others_bound.value),
-      surfacebridgeothersremarks:
-          _safeToString(formBloc.cond_others_remarks.value),
+      surfacebridgeothersremarks: _safeToString(
+        formBloc.cond_others_remarks.value,
+      ),
 
       parapetimpactstatus: _safeToString(formBloc.cond_impact_status.value),
       parapetimpactbound: _safeToString(formBloc.cond_impact_bound.value),
       parapetimpactremarks: _safeToString(formBloc.cond_impact_remarks.value),
-      parapetcorrosionstatus: _safeToString(formBloc.cond_corrosion_status.value),
+      parapetcorrosionstatus: _safeToString(
+        formBloc.cond_corrosion_status.value,
+      ),
       parapetcorrosionbound: _safeToString(formBloc.cond_corrosion_bound.value),
       parapetcorrosionremarks: _safeToString(formBloc.remarkscorrosion.value),
       parapetcrackstatus: _safeToString(formBloc.cond_crack_status.value),
@@ -347,9 +355,12 @@ return Geolocator.getCurrentPosition(
       parapetspallbound: _safeToString(formBloc.cond_spall_bound.value),
       parapetspallremarks: _safeToString(formBloc.remarksspalling.value),
       parapetothers: _safeToString(formBloc.cond_parapet_others.value),
-      parapetothersstatus:
-          _safeToString(formBloc.cond_parapet_others_status.value),
-      parapetothersbound: _safeToString(formBloc.cond_parapet_others_bound.value),
+      parapetothersstatus: _safeToString(
+        formBloc.cond_parapet_others_status.value,
+      ),
+      parapetothersbound: _safeToString(
+        formBloc.cond_parapet_others_bound.value,
+      ),
       parapetothersremarks: _safeToString(formBloc.cond_parapet_remarks.value),
 
       jointdescription: _safeToString(formBloc.joint_description.value),
@@ -431,6 +442,7 @@ return Geolocator.getCurrentPosition(
         images2: sendInfoDto.images2,
         images3: sendInfoDto.images3,
         images4: sendInfoDto.images4,
+        imageCaptions: _photos.map((photo) => photo.caption.trim()).toList(),
       );
 
       final sharedPref = SharedPref();
@@ -475,9 +487,9 @@ return Geolocator.getCurrentPosition(
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Saved locally!")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Saved locally!")));
 
       final goToRecorded = await showDialog<bool>(
         context: context,
@@ -505,9 +517,9 @@ return Geolocator.getCurrentPosition(
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Save failed: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Save failed: $e")));
     }
   }
 
@@ -529,7 +541,6 @@ return Geolocator.getCurrentPosition(
     final bodies = _stepBodies();
 
     return Scaffold(
-      drawer: const NavBar(),
       appBar: AppBar(
         title: Column(
           children: [
@@ -571,10 +582,14 @@ return Geolocator.getCurrentPosition(
               const SizedBox(width: 10),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: _currentStep == _stepCount - 1 ? _saveInspection : _next,
-                  icon: Icon(_currentStep == _stepCount - 1
-                      ? Icons.save
-                      : Icons.chevron_right),
+                  onPressed: _currentStep == _stepCount - 1
+                      ? _saveInspection
+                      : _next,
+                  icon: Icon(
+                    _currentStep == _stepCount - 1
+                        ? Icons.save
+                        : Icons.chevron_right,
+                  ),
                   label: Text(_currentStep == _stepCount - 1 ? "Save" : "Next"),
                 ),
               ),
@@ -594,7 +609,10 @@ return Geolocator.getCurrentPosition(
                 children: [
                   Text(
                     "${steps[_currentStep].title} (${_currentStep + 1}/$_stepCount)",
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   ClipRRect(
@@ -677,8 +695,10 @@ class _StepCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 2),
             Text(subtitle, style: TextStyle(color: Colors.grey.shade700)),
             const SizedBox(height: 12),
@@ -791,10 +811,7 @@ class _ImagePickerModern extends StatelessWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          Image.file(
-                            File(photo.file.path),
-                            fit: BoxFit.cover,
-                          ),
+                          Image.file(File(photo.file.path), fit: BoxFit.cover),
                           Positioned(
                             top: 8,
                             right: 8,
@@ -863,23 +880,35 @@ class _ImagePickerModern extends StatelessWidget {
                             label: 'Captured at',
                             value: _formatDateTime(photo.capturedAt),
                           ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            initialValue: photo.caption,
+                            maxLength: 50,
+                            decoration: const InputDecoration(
+                              labelText: 'Photo caption',
+                              hintText: 'Describe this picture',
+                              prefixIcon: Icon(Icons.notes_outlined),
+                              border: OutlineInputBorder(),
+                            ),
+                            onChanged: (value) => photo.caption = value,
+                          ),
                           if (!hasCoordinate) ...[
                             const SizedBox(height: 10),
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .errorContainer,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.errorContainer,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
                                 'GPS location was not available for this photo.',
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onErrorContainer,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onErrorContainer,
                                 ),
                               ),
                             ),
