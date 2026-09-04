@@ -18,12 +18,15 @@ class BridgeinventoryBloc
       try {
         emit(BridgeinventoryLoading());
         final mInventory = await apiRepositoryBridgeinventory.fetchBridgeinv();
-        if (mInventory?.error != null) {
-          emit(BridgeinventoryError(mInventory.error));
-        } else if (mInventory != null) {
-          emit(BridgeinventoryLoaded(mInventory));
-        } else {
+        if (mInventory == null) {
           emit(const BridgeinventoryError('No bridge data was returned.'));
+          return;
+        }
+        final error = mInventory.error;
+        if (error != null) {
+          emit(BridgeinventoryError(error));
+        } else {
+          emit(BridgeinventoryLoaded(mInventory));
         }
       } catch (_) {
         emit(

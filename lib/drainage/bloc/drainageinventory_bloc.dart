@@ -20,12 +20,11 @@ class DrainageinventoryBloc
         emit(DrainageinventoryLoading());
         final mInventory = await apiRepositoryDrainageinventory
             .fetchDrainageinv();
-        if (mInventory?.error != null) {
-          emit(DrainageinventoryError(mInventory.error));
-        } else if (mInventory != null) {
-          emit(DrainageinventoryLoaded(mInventory));
+        final error = mInventory.error;
+        if (error != null) {
+          emit(DrainageinventoryError(error));
         } else {
-          emit(const DrainageinventoryError('No drainage data was returned.'));
+          emit(DrainageinventoryLoaded(mInventory));
         }
       } catch (_) {
         emit(
