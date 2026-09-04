@@ -10,21 +10,29 @@ class DrainageinventoryBloc
     extends Bloc<DrainageinventoryEvent, DrainageinventoryState> {
   final String? utl;
 
-  DrainageinventoryBloc({required this.utl}) : super(DrainageinventoryInitial()) {
+  DrainageinventoryBloc({required this.utl})
+    : super(DrainageinventoryInitial()) {
     final ApiRepositoryDrainageinventory apiRepositoryDrainageinventory =
         ApiRepositoryDrainageinventory(url: utl);
 
     on<GetDrainageinventory>((event, emit) async {
       try {
         emit(DrainageinventoryLoading());
-        final mInventory = await apiRepositoryDrainageinventory.fetchDrainageinv();
-        emit(DrainageinventoryLoaded(mInventory!));
-        if (mInventory.error != null) {
+        final mInventory = await apiRepositoryDrainageinventory
+            .fetchDrainageinv();
+        if (mInventory?.error != null) {
           emit(DrainageinventoryError(mInventory.error));
+        } else if (mInventory != null) {
+          emit(DrainageinventoryLoaded(mInventory));
+        } else {
+          emit(const DrainageinventoryError('No drainage data was returned.'));
         }
-      } on NetworkError {
-        emit(const DrainageinventoryError(
-            "Failed to fetch data. is your device online?"));
+      } catch (_) {
+        emit(
+          const DrainageinventoryError(
+            'Failed to fetch data. Is your device online?',
+          ),
+        );
       }
     });
   }

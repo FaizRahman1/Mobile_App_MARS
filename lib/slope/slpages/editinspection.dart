@@ -26,14 +26,10 @@ class SharedPref {
 class EditInspectionPage extends StatefulWidget {
   final SLPostModel model;
 
-  const EditInspectionPage({
-    super.key,
-    required this.model,
-  });
+  const EditInspectionPage({super.key, required this.model});
 
   @override
-  State<EditInspectionPage> createState() =>
-      _EditInspectionPageState();
+  State<EditInspectionPage> createState() => _EditInspectionPageState();
 }
 
 class _EditInspectionPageState extends State<EditInspectionPage> {
@@ -45,6 +41,8 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
   final ImagePicker _picker = ImagePicker();
   final List<String> _existingBase64Images = [];
   final List<XFile> _newImageFiles = [];
+  final List<String> _existingCaptions = [];
+  final List<String> _newCaptions = [];
 
   @override
   void initState() {
@@ -56,6 +54,10 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
       ...(widget.model.images3 ?? const <String>[]),
       ...(widget.model.images4 ?? const <String>[]),
     ]);
+    _existingCaptions.addAll(widget.model.imageCaptions ?? const <String>[]);
+    while (_existingCaptions.length < _existingBase64Images.length) {
+      _existingCaptions.add('');
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _prefillFormFromModel(widget.model);
@@ -96,37 +98,16 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
     _setSelect(bloc.accessibility, model.accessibility);
     _setText(bloc.accessibilitywhy, model.accessibilitywhy);
 
-    _setSelect(
-      bloc.vegetationControlForm,
-      model.vegetationControlForm,
-    );
-    _setText(
-      bloc.vegetationControlFormdesc,
-      model.vegetationControlFormdesc,
-    );
+    _setSelect(bloc.vegetationControlForm, model.vegetationControlForm);
+    _setText(bloc.vegetationControlFormdesc, model.vegetationControlFormdesc);
 
-    _setSelect(
-      bloc.drainCleaningForm,
-      model.drainCleaningForm,
-    );
-    _setText(
-      bloc.drainCleaningFormdesc,
-      model.drainCleaningFormdesc,
-    );
+    _setSelect(bloc.drainCleaningForm, model.drainCleaningForm);
+    _setText(bloc.drainCleaningFormdesc, model.drainCleaningFormdesc);
 
-    _setSelect(
-      bloc.gullyrepairform,
-      model.gullyrepairform,
-    );
-    _setText(
-      bloc.gullyrepairformdesc,
-      model.gullyrepairformdesc,
-    );
+    _setSelect(bloc.gullyrepairform, model.gullyrepairform);
+    _setText(bloc.gullyrepairformdesc, model.gullyrepairformdesc);
 
-    _setSelect(
-      bloc.concreterestorationform,
-      model.concreterestorationform,
-    );
+    _setSelect(bloc.concreterestorationform, model.concreterestorationform);
     _setText(
       bloc.concreterestorationformdesc,
       model.concreterestorationformdesc,
@@ -150,14 +131,8 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
       model.earthdrainresectioningformdesc,
     );
 
-    _setText(
-      bloc.otherroutinework,
-      model.otherroutinework,
-    );
-    _setSelect(
-      bloc.statusrm,
-      model.statusrm,
-    );
+    _setText(bloc.otherroutinework, model.otherroutinework);
+    _setSelect(bloc.statusrm, model.statusrm);
 
     if (mounted) {
       setState(() {});
@@ -166,24 +141,20 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final picked = await _picker.pickImage(
-        source: source,
-        imageQuality: 80,
-      );
+      final picked = await _picker.pickImage(source: source, imageQuality: 80);
 
       if (picked != null && mounted) {
         setState(() {
           _newImageFiles.add(picked);
+          _newCaptions.add('');
         });
       }
     } catch (error) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Unable to add image: $error'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Unable to add image: $error')));
     }
   }
 
@@ -202,9 +173,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
               children: [
                 const Text(
                   'Add General Inspection Image',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 10),
                 ListTile(
@@ -234,12 +203,14 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
   void _removeExistingImage(int index) {
     setState(() {
       _existingBase64Images.removeAt(index);
+      _existingCaptions.removeAt(index);
     });
   }
 
   void _removeNewImage(int index) {
     setState(() {
       _newImageFiles.removeAt(index);
+      _newCaptions.removeAt(index);
     });
   }
 
@@ -301,55 +272,42 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
         newBase64Images.add(base64Encode(bytes));
       }
 
-      final allImages = <String>[
-        ..._existingBase64Images,
-        ...newBase64Images,
-      ];
+      final allImages = <String>[..._existingBase64Images, ...newBase64Images];
 
       final updated = SLPostModel.fromFormValues(
         id: widget.model.id,
         diskfilmno: _safeToString(bloc.diskfilmno.value),
         photono: _safeToString(bloc.photono.value),
-        interfacelocation:
-            _safeToString(bloc.interfacelocation.value),
-        accessibility:
-            _safeToString(bloc.accessibility.value),
-        accessibilitywhy:
-            _safeToString(bloc.accessibilitywhy.value),
-        vegetationControlForm:
-            _safeToString(bloc.vegetationControlForm.value),
-        vegetationControlFormdesc:
-            _safeToString(bloc.vegetationControlFormdesc.value),
-        drainCleaningForm:
-            _safeToString(bloc.drainCleaningForm.value),
-        drainCleaningFormdesc:
-            _safeToString(bloc.drainCleaningFormdesc.value),
-        gullyrepairform:
-            _safeToString(bloc.gullyrepairform.value),
-        gullyrepairformdesc:
-            _safeToString(bloc.gullyrepairformdesc.value),
-        concreterestorationform:
-            _safeToString(bloc.concreterestorationform.value),
-        concreterestorationformdesc:
-            _safeToString(bloc.concreterestorationformdesc.value),
-        precastconcretereplacementform:
-            _safeToString(
-              bloc.precastconcretereplacementform.value,
-            ),
-        precastconcretereplacementformdesc:
-            _safeToString(
-              bloc.precastconcretereplacementformdesc.value,
-            ),
-        earthdrainresectioningform:
-            _safeToString(
-              bloc.earthdrainresectioningform.value,
-            ),
-        earthdrainresectioningformdesc:
-            _safeToString(
-              bloc.earthdrainresectioningformdesc.value,
-            ),
-        otherroutinework:
-            _safeToString(bloc.otherroutinework.value),
+        interfacelocation: _safeToString(bloc.interfacelocation.value),
+        accessibility: _safeToString(bloc.accessibility.value),
+        accessibilitywhy: _safeToString(bloc.accessibilitywhy.value),
+        vegetationControlForm: _safeToString(bloc.vegetationControlForm.value),
+        vegetationControlFormdesc: _safeToString(
+          bloc.vegetationControlFormdesc.value,
+        ),
+        drainCleaningForm: _safeToString(bloc.drainCleaningForm.value),
+        drainCleaningFormdesc: _safeToString(bloc.drainCleaningFormdesc.value),
+        gullyrepairform: _safeToString(bloc.gullyrepairform.value),
+        gullyrepairformdesc: _safeToString(bloc.gullyrepairformdesc.value),
+        concreterestorationform: _safeToString(
+          bloc.concreterestorationform.value,
+        ),
+        concreterestorationformdesc: _safeToString(
+          bloc.concreterestorationformdesc.value,
+        ),
+        precastconcretereplacementform: _safeToString(
+          bloc.precastconcretereplacementform.value,
+        ),
+        precastconcretereplacementformdesc: _safeToString(
+          bloc.precastconcretereplacementformdesc.value,
+        ),
+        earthdrainresectioningform: _safeToString(
+          bloc.earthdrainresectioningform.value,
+        ),
+        earthdrainresectioningformdesc: _safeToString(
+          bloc.earthdrainresectioningformdesc.value,
+        ),
+        otherroutinework: _safeToString(bloc.otherroutinework.value),
         statusrm: _safeToString(bloc.statusrm.value),
         dateofinsp: widget.model.dateofinsp,
         inspectedby: widget.model.inspectedby,
@@ -358,6 +316,10 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
         images2: null,
         images3: null,
         images4: null,
+        imageCaptions: [
+          ..._existingCaptions.map((caption) => caption.trim()),
+          ..._newCaptions.map((caption) => caption.trim()),
+        ],
       );
 
       final sharedPref = SharedPref();
@@ -369,21 +331,14 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
         try {
           savedInspections = SLPostModel.decode(existingInfo);
         } catch (error) {
-          debugPrint(
-            'Unable to decode saved Slope inspections: $error',
-          );
+          debugPrint('Unable to decode saved Slope inspections: $error');
         }
       }
 
-      savedInspections.removeWhere(
-        (inspection) => inspection.id == updated.id,
-      );
+      savedInspections.removeWhere((inspection) => inspection.id == updated.id);
       savedInspections.add(updated);
 
-      await sharedPref.save(
-        'info',
-        SLPostModel.encode(savedInspections),
-      );
+      await sharedPref.save('info', SLPostModel.encode(savedInspections));
 
       final listString = await sharedPref.read('list');
       var selectedList = <Rows>[];
@@ -392,32 +347,20 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
         try {
           selectedList = Rows.decode(listString);
         } catch (error) {
-          debugPrint(
-            'Unable to decode saved Slope list: $error',
-          );
+          debugPrint('Unable to decode saved Slope list: $error');
         }
       }
 
       if (!selectedList.any((row) => row.id == updated.id)) {
-        selectedList.add(
-          Rows(
-            id: updated.id,
-            dateofinsp: updated.dateofinsp,
-          ),
-        );
+        selectedList.add(Rows(id: updated.id, dateofinsp: updated.dateofinsp));
 
-        await sharedPref.save(
-          'list',
-          Rows.encode(selectedList),
-        );
+        await sharedPref.save('list', Rows.encode(selectedList));
       }
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Slope inspection changes saved.'),
-        ),
+        const SnackBar(content: Text('Slope inspection changes saved.')),
       );
 
       Navigator.of(context).pop(true);
@@ -432,25 +375,15 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Unable to save the Slope inspection: $error',
-          ),
-        ),
+        SnackBar(content: Text('Unable to save the Slope inspection: $error')),
       );
     }
   }
 
   List<_StepMeta> _steps() {
     return const [
-      _StepMeta(
-        'Slope Inspection',
-        Icons.fact_check_outlined,
-      ),
-      _StepMeta(
-        'General Inspection Images',
-        Icons.photo_library_outlined,
-      ),
+      _StepMeta('Slope Inspection', Icons.fact_check_outlined),
+      _StepMeta('General Inspection Images', Icons.photo_library_outlined),
     ];
   }
 
@@ -472,9 +405,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.save_outlined),
           ),
@@ -485,11 +416,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            border: Border(
-              top: BorderSide(
-                color: Colors.grey.shade200,
-              ),
-            ),
+            border: Border(top: BorderSide(color: Colors.grey.shade200)),
           ),
           child: Row(
             children: [
@@ -512,21 +439,19 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
                   onPressed: _isSaving
                       ? null
                       : _currentStep == steps.length - 1
-                          ? _saveEdits
-                          : () {
-                              setState(() {
-                                _currentStep++;
-                              });
-                            },
+                      ? _saveEdits
+                      : () {
+                          setState(() {
+                            _currentStep++;
+                          });
+                        },
                   icon: Icon(
                     _currentStep == steps.length - 1
                         ? Icons.save
                         : Icons.chevron_right,
                   ),
                   label: Text(
-                    _currentStep == steps.length - 1
-                        ? 'Save'
-                        : 'Next',
+                    _currentStep == steps.length - 1 ? 'Save' : 'Next',
                   ),
                 ),
               ),
@@ -540,18 +465,13 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
             SizedBox(
               height: 48,
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (_, index) {
                   return ChoiceChip(
                     selected: index == _currentStep,
                     label: Text(steps[index].title),
-                    avatar: Icon(
-                      steps[index].icon,
-                      size: 18,
-                    ),
+                    avatar: Icon(steps[index].icon, size: 18),
                     onSelected: _isSaving
                         ? null
                         : (_) {
@@ -573,21 +493,13 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
                 duration: const Duration(milliseconds: 200),
                 child: SingleChildScrollView(
                   key: ValueKey(_currentStep),
-                  padding: const EdgeInsets.fromLTRB(
-                    12,
-                    0,
-                    12,
-                    12,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                   child: _currentStep == 0
                       ? Card(
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(16),
-                            side: BorderSide(
-                              color: Colors.grey.shade300,
-                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(color: Colors.grey.shade300),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(12),
@@ -595,12 +507,12 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
                           ),
                         )
                       : _ImagesEditor(
-                          existingBase64:
-                              _existingBase64Images,
+                          existingBase64: _existingBase64Images,
                           newFiles: _newImageFiles,
+                          existingCaptions: _existingCaptions,
+                          newCaptions: _newCaptions,
                           onAdd: _showPickImageSheet,
-                          onRemoveExisting:
-                              _removeExistingImage,
+                          onRemoveExisting: _removeExistingImage,
                           onRemoveNew: _removeNewImage,
                         ),
                 ),
@@ -623,6 +535,8 @@ class _StepMeta {
 class _ImagesEditor extends StatelessWidget {
   final List<String> existingBase64;
   final List<XFile> newFiles;
+  final List<String> existingCaptions;
+  final List<String> newCaptions;
   final VoidCallback onAdd;
   final void Function(int) onRemoveExisting;
   final void Function(int) onRemoveNew;
@@ -630,6 +544,8 @@ class _ImagesEditor extends StatelessWidget {
   const _ImagesEditor({
     required this.existingBase64,
     required this.newFiles,
+    required this.existingCaptions,
+    required this.newCaptions,
     required this.onAdd,
     required this.onRemoveExisting,
     required this.onRemoveNew,
@@ -661,9 +577,7 @@ class _ImagesEditor extends StatelessWidget {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Colors.grey.shade300,
-        ),
+        side: BorderSide(color: Colors.grey.shade300),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
@@ -672,10 +586,7 @@ class _ImagesEditor extends StatelessWidget {
           children: [
             Text(
               'General Inspection Images ($total)',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 4),
             const Text(
@@ -694,18 +605,14 @@ class _ImagesEditor extends StatelessWidget {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: Colors.grey.shade300,
-                  ),
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
                 child: const Row(
                   children: [
                     Icon(Icons.image_outlined),
                     SizedBox(width: 10),
                     Expanded(
-                      child: Text(
-                        'No General Inspection images added.',
-                      ),
+                      child: Text('No General Inspection images added.'),
                     ),
                   ],
                 ),
@@ -713,26 +620,22 @@ class _ImagesEditor extends StatelessWidget {
             else
               GridView.builder(
                 shrinkWrap: true,
-                physics:
-                    const NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: total,
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
+                  childAspectRatio: 0.58,
                 ),
                 itemBuilder: (_, index) {
-                  final isExisting =
-                      index < existingBase64.length;
+                  final isExisting = index < existingBase64.length;
 
                   Widget image;
                   VoidCallback removeImage;
 
                   if (isExisting) {
-                    final bytes = _decodeImage(
-                      existingBase64[index],
-                    );
+                    final bytes = _decodeImage(existingBase64[index]);
 
                     image = bytes == null
                         ? const ColoredBox(
@@ -744,17 +647,13 @@ class _ImagesEditor extends StatelessWidget {
                               ),
                             ),
                           )
-                        : Image.memory(
-                            bytes,
-                            fit: BoxFit.cover,
-                          );
+                        : Image.memory(bytes, fit: BoxFit.cover);
 
                     removeImage = () {
                       onRemoveExisting(index);
                     };
                   } else {
-                    final newIndex =
-                        index - existingBase64.length;
+                    final newIndex = index - existingBase64.length;
 
                     image = Image.file(
                       File(newFiles[newIndex].path),
@@ -766,36 +665,63 @@ class _ImagesEditor extends StatelessWidget {
                     };
                   }
 
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        image,
-                        Positioned(
-                          top: 6,
-                          right: 6,
-                          child: InkWell(
-                            onTap: removeImage,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withValues(
-                                  alpha: 0.55,
+                  final caption = isExisting
+                      ? existingCaptions[index]
+                      : newCaptions[index - existingBase64.length];
+
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              image,
+                              Positioned(
+                                top: 6,
+                                right: 6,
+                                child: InkWell(
+                                  onTap: removeImage,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.55,
+                                      ),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
                                 ),
-                                borderRadius:
-                                    BorderRadius.circular(999),
                               ),
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.white,
-                                size: 16,
-                              ),
-                            ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        initialValue: caption,
+                        maxLength: 50,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          isDense: true,
+                          counterText: '',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          if (isExisting) {
+                            existingCaptions[index] = value;
+                          } else {
+                            newCaptions[index - existingBase64.length] = value;
+                          }
+                        },
+                      ),
+                    ],
                   );
                 },
               ),

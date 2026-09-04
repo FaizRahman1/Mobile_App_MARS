@@ -24,30 +24,32 @@ class SharedPref {
   }
 }
 
-
 class InspectionPhoto {
   final XFile file;
   final double? latitude;
   final double? longitude;
   final double? accuracy;
   final DateTime capturedAt;
+  String caption;
 
-  const InspectionPhoto({
+  InspectionPhoto({
     required this.file,
     required this.latitude,
     required this.longitude,
     required this.accuracy,
     required this.capturedAt,
+    this.caption = '',
   });
 
   Map<String, dynamic> toJson() => {
-        'fileName': file.name,
-        'filePath': file.path,
-        'latitude': latitude,
-        'longitude': longitude,
-        'accuracy': accuracy,
-        'capturedAt': capturedAt.toIso8601String(),
-      };
+    'fileName': file.name,
+    'filePath': file.path,
+    'latitude': latitude,
+    'longitude': longitude,
+    'accuracy': accuracy,
+    'capturedAt': capturedAt.toIso8601String(),
+    'caption': caption,
+  };
 }
 
 class EditInspectionPage extends StatefulWidget {
@@ -66,6 +68,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
   final ImagePicker _picker = ImagePicker();
   final List<String> _existingBase64Images = [];
+  final List<String> _existingCaptions = [];
   final List<Map<String, dynamic>> _existingPhotoMetadata = [];
   final List<InspectionPhoto> _newPhotos = [];
   bool _isGettingLocation = false;
@@ -76,6 +79,10 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
     if (widget.model.images != null) {
       _existingBase64Images.addAll(widget.model.images!);
+    }
+    _existingCaptions.addAll(widget.model.imageCaptions ?? const <String>[]);
+    while (_existingCaptions.length < _existingBase64Images.length) {
+      _existingCaptions.add('');
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -99,9 +106,9 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
         _existingPhotoMetadata
           ..clear()
           ..addAll(
-            decoded
-                .whereType<Map>()
-                .map((item) => Map<String, dynamic>.from(item)),
+            decoded.whereType<Map>().map(
+              (item) => Map<String, dynamic>.from(item),
+            ),
           );
       });
     } catch (_) {
@@ -225,8 +232,10 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? picked =
-          await _picker.pickImage(source: source, imageQuality: 80);
+      final XFile? picked = await _picker.pickImage(
+        source: source,
+        imageQuality: 80,
+      );
 
       if (picked == null) return;
 
@@ -266,9 +275,9 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isGettingLocation = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Pick image failed: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Pick image failed: $e")));
     }
   }
 
@@ -314,6 +323,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
   void _removeExistingImage(int idx) {
     setState(() {
       _existingBase64Images.removeAt(idx);
+      _existingCaptions.removeAt(idx);
       if (idx < _existingPhotoMetadata.length) {
         _existingPhotoMetadata.removeAt(idx);
       }
@@ -359,10 +369,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
       newBase64.add(base64Encode(bytes));
     }
 
-    final allImages = <String>[
-      ..._existingBase64Images,
-      ...newBase64,
-    ];
+    final allImages = <String>[..._existingBase64Images, ...newBase64];
 
     final updated = DRPostModel.fromFormValues(
       id: widget.model.id ?? "",
@@ -371,50 +378,48 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
       inspectedby: widget.model.inspectedby ?? "MobileUser",
       maintainedby: widget.model.maintainedby ?? "PLUS",
 
-      siltationdiameterinlet:
-          _safeToString(b.cond_siltation_inlet.value),
-      siltationdiameteroutlet:
-          _safeToString(b.cond_siltation_outlet.value),
+      siltationdiameterinlet: _safeToString(b.cond_siltation_inlet.value),
+      siltationdiameteroutlet: _safeToString(b.cond_siltation_outlet.value),
 
       vegecoverinlet: _safeToString(b.cond_vege_inlet.value),
       vegecoveroutlet: _safeToString(b.cond_vege_outlet.value),
 
       headwallstatusinlet: _safeToString(b.cond_headwall_inlet.value),
-      headwallexplainationinlet:
-          _safeToString(b.headwall_explanation_inlet.value),
+      headwallexplainationinlet: _safeToString(
+        b.headwall_explanation_inlet.value,
+      ),
       headwallstatusoutlet: _safeToString(b.cond_headwall_outlet.value),
-      headwallexplainationoutlet:
-          _safeToString(b.headwall_explanation_outlet.value),
+      headwallexplainationoutlet: _safeToString(
+        b.headwall_explanation_outlet.value,
+      ),
 
       wingwallstatusinlet: _safeToString(b.cond_wingwall_inlet.value),
-      wingwallexplanationinlet:
-          _safeToString(b.wingwall_explanation_inlet.value),
+      wingwallexplanationinlet: _safeToString(
+        b.wingwall_explanation_inlet.value,
+      ),
       wingwallstatusoutlet: _safeToString(b.cond_wingwall_outlet.value),
-      wingwallexplanationoutlet:
-          _safeToString(b.wingwall_explanation_outlet.value),
+      wingwallexplanationoutlet: _safeToString(
+        b.wingwall_explanation_outlet.value,
+      ),
 
       sumpstatusinlet: _safeToString(b.cond_sump_inlet.value),
-      sumpexplanationinlet:
-          _safeToString(b.sump_explanation_inlet.value),
+      sumpexplanationinlet: _safeToString(b.sump_explanation_inlet.value),
       sumpstatusoutlet: _safeToString(b.cond_sump_outlet.value),
-      sumpexplanationoutlet:
-          _safeToString(b.sump_explanation_outlet.value),
+      sumpexplanationoutlet: _safeToString(b.sump_explanation_outlet.value),
 
       apronstatusinlet: _safeToString(b.cond_apron_inlet.value),
-      apronexplanationinlet:
-          _safeToString(b.apron_explanation_inlet.value),
+      apronexplanationinlet: _safeToString(b.apron_explanation_inlet.value),
       apronstatusoutlet: _safeToString(b.cond_apron_outlet.value),
-      apronexplanationoutlet:
-          _safeToString(b.apron_explanation_outlet.value),
+      apronexplanationoutlet: _safeToString(b.apron_explanation_outlet.value),
 
-      incdrainstatusinlet:
-          _safeToString(b.cond_incdrain_inlet.value),
-      incdrainexplanationinlet:
-          _safeToString(b.incdrain_explanation_inlet.value),
-      incdrainstatusoutlet:
-          _safeToString(b.cond_incdrain_outlet.value),
-      incdrainexplanationoutlet:
-          _safeToString(b.incdrain_explanation_outlet.value),
+      incdrainstatusinlet: _safeToString(b.cond_incdrain_inlet.value),
+      incdrainexplanationinlet: _safeToString(
+        b.incdrain_explanation_inlet.value,
+      ),
+      incdrainstatusoutlet: _safeToString(b.cond_incdrain_outlet.value),
+      incdrainexplanationoutlet: _safeToString(
+        b.incdrain_explanation_outlet.value,
+      ),
 
       routinedefect1: _safeToString(b.routinedefect1.value),
       otherdefect1: _safeToString(b.otherdefect1.value),
@@ -431,6 +436,10 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
       images2: widget.model.images2,
       images3: widget.model.images3,
       images4: widget.model.images4,
+      imageCaptions: [
+        ..._existingCaptions.map((caption) => caption.trim()),
+        ..._newPhotos.map((photo) => photo.caption.trim()),
+      ],
     );
 
     final sharedPref = SharedPref();
@@ -469,17 +478,17 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
     }
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Changes saved ✅")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Changes saved ✅")));
 
     Navigator.pop(context, true);
   }
 
   List<_StepMeta> _steps() => const [
-        _StepMeta("Inspection", Icons.fact_check_outlined),
-        _StepMeta("Pictures", Icons.photo_library_outlined),
-      ];
+    _StepMeta("Inspection", Icons.fact_check_outlined),
+    _StepMeta("Pictures", Icons.photo_library_outlined),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -496,7 +505,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
             tooltip: "Save",
             onPressed: _saveEdits,
             icon: const Icon(Icons.save_outlined),
-          )
+          ),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -528,8 +537,9 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
                         ? Icons.save
                         : Icons.chevron_right,
                   ),
-                  label:
-                      Text(_currentStep == steps.length - 1 ? "Save" : "Next"),
+                  label: Text(
+                    _currentStep == steps.length - 1 ? "Save" : "Next",
+                  ),
                 ),
               ),
             ],
@@ -575,6 +585,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
                         )
                       : _ImagesEditor(
                           existingBase64: _existingBase64Images,
+                          existingCaptions: _existingCaptions,
                           existingMetadata: _existingPhotoMetadata,
                           newPhotos: _newPhotos,
                           isGettingLocation: _isGettingLocation,
@@ -600,6 +611,7 @@ class _StepMeta {
 
 class _ImagesEditor extends StatelessWidget {
   final List<String> existingBase64;
+  final List<String> existingCaptions;
   final List<Map<String, dynamic>> existingMetadata;
   final List<InspectionPhoto> newPhotos;
   final bool isGettingLocation;
@@ -609,6 +621,7 @@ class _ImagesEditor extends StatelessWidget {
 
   const _ImagesEditor({
     required this.existingBase64,
+    required this.existingCaptions,
     required this.existingMetadata,
     required this.newPhotos,
     required this.isGettingLocation,
@@ -658,6 +671,8 @@ class _ImagesEditor extends StatelessWidget {
     required dynamic accuracy,
     required dynamic capturedAt,
     required bool isExisting,
+    required String caption,
+    required ValueChanged<String> onCaptionChanged,
   }) {
     final hasCoordinate =
         _formatCoordinate(latitude) != 'Not available' &&
@@ -701,8 +716,10 @@ class _ImagesEditor extends StatelessWidget {
                   left: 8,
                   bottom: 8,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.60),
                       borderRadius: BorderRadius.circular(20),
@@ -747,6 +764,18 @@ class _ImagesEditor extends StatelessWidget {
                   icon: Icons.schedule,
                   label: 'Captured at',
                   value: _formatDateTime(capturedAt),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  initialValue: caption,
+                  maxLength: 50,
+                  decoration: const InputDecoration(
+                    labelText: 'Photo description',
+                    hintText: 'Describe this picture',
+                    prefixIcon: Icon(Icons.notes_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: onCaptionChanged,
                 ),
                 if (!hasCoordinate) ...[
                   const SizedBox(height: 10),
@@ -807,9 +836,7 @@ class _ImagesEditor extends StatelessWidget {
                       )
                     : const Icon(Icons.add_a_photo_outlined),
                 label: Text(
-                  isGettingLocation
-                      ? 'Capturing GPS location...'
-                      : 'Add Photo',
+                  isGettingLocation ? 'Capturing GPS location...' : 'Add Photo',
                 ),
               ),
             ),
@@ -869,6 +896,8 @@ class _ImagesEditor extends StatelessWidget {
                       accuracy: metadata['accuracy'],
                       capturedAt: metadata['capturedAt'],
                       isExisting: true,
+                      caption: existingCaptions[i],
+                      onCaptionChanged: (value) => existingCaptions[i] = value,
                     );
                   }
 
@@ -885,6 +914,8 @@ class _ImagesEditor extends StatelessWidget {
                     accuracy: photo.accuracy,
                     capturedAt: photo.capturedAt,
                     isExisting: false,
+                    caption: photo.caption,
+                    onCaptionChanged: (value) => photo.caption = value,
                   );
                 },
               ),

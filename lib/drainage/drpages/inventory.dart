@@ -1,142 +1,131 @@
-import 'package:bridgeinsp_new/bridge/bloc/bridgeinventory_bloc.dart';
-import 'package:bridgeinsp_new/bridge/brmodels/bridgeinventory_model.dart';
+import 'package:bridgeinsp_new/drainage/Drmodels/drainageinventory_model.dart';
+import 'package:bridgeinsp_new/drainage/bloc/drainageinventory_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_bloc/flutter_form_bloc.dart';
-
-//import 'dart:async';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Bridgeinventory extends StatefulWidget {
-  static final theKey = GlobalKey<_BridgeinventoryState>();
-  final String? row;
+  const Bridgeinventory({super.key, required this.row});
 
-  Bridgeinventory({required this.row}) : super(key: theKey);
+  final String? row;
 
   @override
   State<Bridgeinventory> createState() => _BridgeinventoryState();
 }
 
 class _BridgeinventoryState extends State<Bridgeinventory> {
-  late final BridgeinventoryBloc _newsBloc;
-  List<Inventories> disrow = <Inventories>[];
-  List<Inventories> datarow = <Inventories>[];
+  late final DrainageinventoryBloc _inventoryBloc;
 
   @override
   void initState() {
-    _newsBloc = BridgeinventoryBloc(utl: widget.row);
-    _newsBloc.add(GetBridgeinventory());
-
     super.initState();
-  }
-
-  Widget DisplayBridgeinventory(List<Inventories> modelinv) {
-    return ListView.builder(
-        itemCount: modelinv.length,
-        itemBuilder: (context, index) {
-          return Card(
-            child: Column(
-              children: [
-                Text(
-                  "\nBridge ID : ${modelinv[index].bridgeid ?? 'No data recorded'}",
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(fontSize: 15.0, letterSpacing: 0.5),
-                ),
-                //Text("id: ${mod.    elinv[index].id ?? 'No data recorded'}"),
-                Text(
-                  "Bridge Name :  ${modelinv[index].bridgename ?? 'No data recorded'}",
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(fontSize: 15.0, letterSpacing: 0.5),
-                ),
-                Text(
-                  "Bridge Type : ${modelinv[index].bridgetype ?? 'No data recorded'}",
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(fontSize: 15.0, letterSpacing: 0.5),
-                ),
-                Text(
-                  "Section : ${modelinv[index].section ?? 'No data recorded'}",
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(fontSize: 15.0, letterSpacing: 0.5),
-                ),
-                Text(
-                  "No of Spans : ${modelinv[index].nospan ?? 'No data recorded'}",
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(fontSize: 15.0, letterSpacing: 0.5),
-                ),
-                Text(
-                  "Year Open : ${modelinv[index].yearopen ?? 'No data recorded'}\n",
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(fontSize: 15.0, letterSpacing: 0.5),
-                ),
-              ],
-            ),
-          );
-        });
+    _inventoryBloc = DrainageinventoryBloc(utl: widget.row)
+      ..add(GetDrainageinventory());
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: Scaffold(
-        body: Column(
-          children: [
-            const SizedBox(height: 20),
-            Expanded(
-              child: _buildBridgeinventorylist(context),
+  void dispose() {
+    _inventoryBloc.close();
+    super.dispose();
+  }
+
+  Widget _valueRow(String label, Object? value) {
+    final text = value?.toString().trim();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
+          ),
+          Expanded(
+            child: Text(
+              text == null || text.isEmpty ? 'No data recorded' : text,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _message(IconData icon, String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 32),
+            const SizedBox(height: 8),
+            Text(message, textAlign: TextAlign.center),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBridgeinventorylist(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(8.0),
-      child: BlocProvider(
-        create: (_) => _newsBloc,
-        child: BlocListener<BridgeinventoryBloc, BridgeinventoryState>(
-          listener: (context, state) {
-            if (state is BridgeinventoryError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message!),
-                ),
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 250,
+      child: BlocProvider.value(
+        value: _inventoryBloc,
+        child: BlocBuilder<DrainageinventoryBloc, DrainageinventoryState>(
+          builder: (context, state) {
+            if (state is DrainageinventoryInitial ||
+                state is DrainageinventoryLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is DrainageinventoryError) {
+              return _message(
+                Icons.cloud_off_outlined,
+                state.message ?? 'Unable to load drainage data.',
               );
             }
-            if (state is BridgeinventoryLoaded) {
-              for (int i = 0;
-                  i < state.bridgeinventoryModel.rows!.length;
-                  i++) {
-                datarow.add(state.bridgeinventoryModel.rows![i]);
+            if (state is DrainageinventoryLoaded) {
+              final rows =
+                  state.drainageinventoryModel.rows ?? const <Inventories>[];
+              if (rows.isEmpty) {
+                return _message(
+                  Icons.info_outline,
+                  'No General Data found for this drainage ID.',
+                );
               }
-              disrow = datarow;
+              return ListView.builder(
+                itemCount: rows.length,
+                itemBuilder: (context, index) {
+                  final item = rows[index];
+                  return Card(
+                    elevation: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        children: [
+                          _valueRow('Drainage ID', item.drainageid),
+                          _valueRow('Section', item.section),
+                          _valueRow('Route', item.route),
+                          _valueRow('KM location', item.kmlocation),
+                          _valueRow('Feature', item.featurename),
+                          _valueRow('Location', item.locoffeature),
+                          _valueRow('Purpose', item.purpose),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
             }
-
+            return _message(
+              Icons.error_outline,
+              'Unable to load drainage data.',
+            );
           },
-          child: BlocBuilder<BridgeinventoryBloc, BridgeinventoryState>(
-            builder: (context, state) {
-              if (state is BridgeinventoryInitial) {
-                return _buildLoading();
-              } else if (state is BridgeinventoryLoading) {
-                return _buildLoading();
-              } else if (state is BridgeinventoryLoaded) {
-                return DisplayBridgeinventory(disrow);
-              } else if (state is BridgeinventoryError) {
-                return Container();
-              } else {
-                return Container();
-              }
-            },
-          ),
         ),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }
-
-Widget _buildLoading() => const Center(child: CircularProgressIndicator());

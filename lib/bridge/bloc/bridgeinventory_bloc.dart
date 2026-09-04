@@ -18,13 +18,19 @@ class BridgeinventoryBloc
       try {
         emit(BridgeinventoryLoading());
         final mInventory = await apiRepositoryBridgeinventory.fetchBridgeinv();
-        emit(BridgeinventoryLoaded(mInventory!));
-        if (mInventory.error != null) {
+        if (mInventory?.error != null) {
           emit(BridgeinventoryError(mInventory.error));
+        } else if (mInventory != null) {
+          emit(BridgeinventoryLoaded(mInventory));
+        } else {
+          emit(const BridgeinventoryError('No bridge data was returned.'));
         }
-      } on NetworkError {
-        emit(const BridgeinventoryError(
-            "Failed to fetch data. is your device online?"));
+      } catch (_) {
+        emit(
+          const BridgeinventoryError(
+            'Failed to fetch data. Is your device online?',
+          ),
+        );
       }
     });
   }

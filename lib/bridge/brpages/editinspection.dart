@@ -11,7 +11,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bridgeinsp_new/bridge/brpages/module_selection_page.dart';
 
-
 class SharedPref {
   Future<String?> read(String key) async {
     final prefs = await SharedPreferences.getInstance();
@@ -46,6 +45,8 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
   final ImagePicker _picker = ImagePicker();
   final List<String> _existingBase64Images = [];
   final List<XFile> _newImageFiles = [];
+  final List<String> _existingCaptions = [];
+  final List<String> _newCaptions = [];
 
   @override
   void initState() {
@@ -54,6 +55,10 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
     // Load existing images from model (base64 list)
     if (widget.model.images != null) {
       _existingBase64Images.addAll(widget.model.images!);
+    }
+    _existingCaptions.addAll(widget.model.imageCaptions ?? const <String>[]);
+    while (_existingCaptions.length < _existingBase64Images.length) {
+      _existingCaptions.add('');
     }
 
     // Prefill form after first frame (to ensure bloc exists)
@@ -92,8 +97,14 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
     // Surface Bridge - Blockage
     _setSelect(b.cond_blockage_status, m.surfacebridgeblockagestatus);
-    _setSelect(b.cond_surfacebridge_blockage_bound, m.surfacebridgeblockagebound);
-    _setText(b.cond_surfacebridge_blockage_remarks, m.surfacebridgeblockageremarks);
+    _setSelect(
+      b.cond_surfacebridge_blockage_bound,
+      m.surfacebridgeblockagebound,
+    );
+    _setText(
+      b.cond_surfacebridge_blockage_remarks,
+      m.surfacebridgeblockageremarks,
+    );
 
     // Surface Bridge - Ponding
     _setSelect(b.cond_ponding_status, m.surfacebridgepondingstatus);
@@ -163,13 +174,21 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? picked = await _picker.pickImage(source: source, imageQuality: 80);
-      if (picked != null) setState(() => _newImageFiles.add(picked));
+      final XFile? picked = await _picker.pickImage(
+        source: source,
+        imageQuality: 80,
+      );
+      if (picked != null) {
+        setState(() {
+          _newImageFiles.add(picked);
+          _newCaptions.add('');
+        });
+      }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Pick image failed: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Pick image failed: $e")));
     }
   }
 
@@ -184,7 +203,10 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text("Add Photo", style: TextStyle(fontWeight: FontWeight.w700)),
+              const Text(
+                "Add Photo",
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 10),
               ListTile(
                 leading: const Icon(Icons.photo_camera),
@@ -210,11 +232,17 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
   }
 
   void _removeExistingImage(int idx) {
-    setState(() => _existingBase64Images.removeAt(idx));
+    setState(() {
+      _existingBase64Images.removeAt(idx);
+      _existingCaptions.removeAt(idx);
+    });
   }
 
   void _removeNewImage(int idx) {
-    setState(() => _newImageFiles.removeAt(idx));
+    setState(() {
+      _newImageFiles.removeAt(idx);
+      _newCaptions.removeAt(idx);
+    });
   }
 
   // -------------------- SAVE (UPDATE EXISTING) --------------------
@@ -256,10 +284,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
     }
 
     // Merge existing + new
-    final allImages = <String>[
-      ..._existingBase64Images,
-      ...newBase64,
-    ];
+    final allImages = <String>[..._existingBase64Images, ...newBase64];
 
     // Build updated model (keep id & metadata, overwrite fields)
     final updated = BrPostModel.fromFormValues(
@@ -270,10 +295,12 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
       // Surface Bridge - Blockage
       surfacebridgeblockagestatus: _safeToString(b.cond_blockage_status.value),
-      surfacebridgeblockagebound:
-          _safeToString(b.cond_surfacebridge_blockage_bound.value),
-      surfacebridgeblockageremarks:
-          _safeToString(b.cond_surfacebridge_blockage_remarks.value),
+      surfacebridgeblockagebound: _safeToString(
+        b.cond_surfacebridge_blockage_bound.value,
+      ),
+      surfacebridgeblockageremarks: _safeToString(
+        b.cond_surfacebridge_blockage_remarks.value,
+      ),
 
       // Surface Bridge - Ponding
       surfacebridgepondingstatus: _safeToString(b.cond_ponding_status.value),
@@ -282,7 +309,9 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
 
       // Surface Bridge - Others
       surfacebridgeothers: _safeToString(b.cond_surfacebridge_others.value),
-      surfacebridgeothersstatus: _safeToString(b.cond_surfacebridge_Status.value),
+      surfacebridgeothersstatus: _safeToString(
+        b.cond_surfacebridge_Status.value,
+      ),
       surfacebridgeothersbound: _safeToString(b.cond_others_bound.value),
       surfacebridgeothersremarks: _safeToString(b.cond_others_remarks.value),
 
@@ -332,6 +361,10 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
       images2: widget.model.images2,
       images3: widget.model.images3,
       images4: widget.model.images4,
+      imageCaptions: [
+        ..._existingCaptions.map((caption) => caption.trim()),
+        ..._newCaptions.map((caption) => caption.trim()),
+      ],
     );
 
     // Save back to SharedPreferences ("info") by upsert
@@ -360,9 +393,9 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
     }
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Changes saved ✅")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Changes saved ✅")));
 
     Navigator.pop(context, true);
   }
@@ -370,9 +403,9 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
   // -------------------- UI --------------------
 
   List<_StepMeta> _steps() => const [
-        _StepMeta("Inspection", Icons.fact_check_outlined),
-        _StepMeta("Pictures", Icons.photo_library_outlined),
-      ];
+    _StepMeta("Inspection", Icons.fact_check_outlined),
+    _StepMeta("Pictures", Icons.photo_library_outlined),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -389,7 +422,7 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
             tooltip: "Save",
             onPressed: _saveEdits,
             icon: const Icon(Icons.save_outlined),
-          )
+          ),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -416,10 +449,14 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
                   onPressed: _currentStep == steps.length - 1
                       ? _saveEdits
                       : () => setState(() => _currentStep++),
-                  icon: Icon(_currentStep == steps.length - 1
-                      ? Icons.save
-                      : Icons.chevron_right),
-                  label: Text(_currentStep == steps.length - 1 ? "Save" : "Next"),
+                  icon: Icon(
+                    _currentStep == steps.length - 1
+                        ? Icons.save
+                        : Icons.chevron_right,
+                  ),
+                  label: Text(
+                    _currentStep == steps.length - 1 ? "Save" : "Next",
+                  ),
                 ),
               ),
             ],
@@ -468,6 +505,8 @@ class _EditInspectionPageState extends State<EditInspectionPage> {
                       : _ImagesEditor(
                           existingBase64: _existingBase64Images,
                           newFiles: _newImageFiles,
+                          existingCaptions: _existingCaptions,
+                          newCaptions: _newCaptions,
                           onAdd: _showPickImageSheet,
                           onRemoveExisting: _removeExistingImage,
                           onRemoveNew: _removeNewImage,
@@ -491,6 +530,8 @@ class _StepMeta {
 class _ImagesEditor extends StatelessWidget {
   final List<String> existingBase64;
   final List<XFile> newFiles;
+  final List<String> existingCaptions;
+  final List<String> newCaptions;
   final VoidCallback onAdd;
   final void Function(int) onRemoveExisting;
   final void Function(int) onRemoveNew;
@@ -498,6 +539,8 @@ class _ImagesEditor extends StatelessWidget {
   const _ImagesEditor({
     required this.existingBase64,
     required this.newFiles,
+    required this.existingCaptions,
+    required this.newCaptions,
     required this.onAdd,
     required this.onRemoveExisting,
     required this.onRemoveNew,
@@ -518,8 +561,10 @@ class _ImagesEditor extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Pictures ($total)",
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            Text(
+              "Pictures ($total)",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 10),
             FilledButton.icon(
               onPressed: onAdd,
@@ -552,6 +597,7 @@ class _ImagesEditor extends StatelessWidget {
                   crossAxisCount: 3,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
+                  childAspectRatio: 0.58,
                 ),
                 itemBuilder: (_, i) {
                   // first show existing base64, then new files
@@ -566,34 +612,68 @@ class _ImagesEditor extends StatelessWidget {
                     onRemove = () => onRemoveExisting(i);
                   } else {
                     final idx = i - existingBase64.length;
-                    image = Image.file(File(newFiles[idx].path), fit: BoxFit.cover);
+                    image = Image.file(
+                      File(newFiles[idx].path),
+                      fit: BoxFit.cover,
+                    );
                     onRemove = () => onRemoveNew(idx);
                   }
 
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        image,
-                        Positioned(
-                          top: 6,
-                          right: 6,
-                          child: InkWell(
-                            onTap: onRemove,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.55),
-                                borderRadius: BorderRadius.circular(999),
+                  final caption = isExisting
+                      ? existingCaptions[i]
+                      : newCaptions[i - existingBase64.length];
+
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              image,
+                              Positioned(
+                                top: 6,
+                                right: 6,
+                                child: InkWell(
+                                  onTap: onRemove,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.55),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                      size: 16,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              child: const Icon(Icons.close,
-                                  color: Colors.white, size: 16),
-                            ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        initialValue: caption,
+                        maxLength: 50,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          isDense: true,
+                          counterText: '',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          if (isExisting) {
+                            existingCaptions[i] = value;
+                          } else {
+                            newCaptions[i - existingBase64.length] = value;
+                          }
+                        },
+                      ),
+                    ],
                   );
                 },
               ),
